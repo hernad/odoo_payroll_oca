@@ -337,7 +337,17 @@ class HrPayslip(models.Model):
             # == compute worked days == #
             attendances = self._compute_worked_days(contract, day_from, day_to)
             res.append(attendances)
+
+            timesheets = self._compute_timesheet_hours(contract, day_from, day_to)
+            res.append(timesheets)
         return res
+
+    def _get_work_hours(self, tz, calendar, day):
+        return calendar.get_work_hours_count(
+                tz.localize(datetime.combine(day, time.min)),
+                tz.localize(datetime.combine(day, time.max)),
+                compute_leaves=False,
+            )
 
     def _compute_leave_days(self, contract, day_from, day_to):
         """
@@ -371,11 +381,8 @@ class HrPayslip(models.Model):
                 current_leave_struct["number_of_hours"] += hours
             else:
                 current_leave_struct["number_of_hours"] -= hours
-            work_hours = calendar.get_work_hours_count(
-                tz.localize(datetime.combine(day, time.min)),
-                tz.localize(datetime.combine(day, time.max)),
-                compute_leaves=False,
-            )
+
+            work_hours = self._get_work_hours(tz, calendar, day)
             if work_hours:
                 if leaves_positive:
                     current_leave_struct["number_of_days"] += hours / work_hours
@@ -404,6 +411,63 @@ class HrPayslip(models.Model):
             "number_of_hours": work_data["hours"],
             "contract_id": contract.id,
         }
+
+
+    def _compute_timesheet_hours(self, contract_id, date_from, date_to):
+        """
+        original author: Cybrosys Techno Solutions, LGPL-3
+        https://apps.odoo.com/apps/modules/10.0/payroll_timesheet/
+
+        Function which computes total hours, timesheethours, attendances, timehseet difference,
+        :param employee_id:
+        :param date_from:
+        :param date_to:
+        :return:  computed total timesheet hours within duration, total hours by working schedule
+        """
+        if not contract_id:
+            return {}
+        env = self.env
+
+        # get timesheets for employee
+        employee_id = contract_id.employee_id
+        timesheet_object = env['hr_timesheet.sheet']
+
+        #total_hours = 0
+        #for line in self.worked_days_line_ids:
+        #    total_hours += line.number_of_hours if line.code == 'TIMESH' else 0.0
+
+        import pdb; pdb.set_trace()
+        sheets = timesheet_object.search([
+            ('employee_id', '=', employee_id.id),
+            ('date_start', '>=', date_from),
+            ('date_end', '<=', date_to),
+            ('state', '=', 'done')
+
+        ])
+
+        timesheet_hours = 0.0
+        for sheet in sheets:
+            analytic_line_object = env['account.analytic.line']
+            lines = analytic_line_object.search([
+                ('employee_id', '=', employee_id.id),
+                ('sheet_id', '=', sheet.id),
+                ('date', '>=', date_from),
+                ('date', '<=', date_to)
+            ])
+            for line in lines:
+                # TODO: use product_uom_id
+                # TODO: day = timesheet_hours / 8?  use _get_work_hours?
+                timesheet_hours += line.unit_amount
+
+        return {
+            "name": _("Timesheet days"),
+            "sequence": 10,
+            "code": "TIMESH",
+            "number_of_hours": timesheet_hours,
+            "number_of_days": timesheet_hours / 8,
+            "contract_id": contract_id,
+        }
+
 
     @api.model
     def get_inputs(self, contracts, date_from, date_to):

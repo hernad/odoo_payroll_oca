@@ -187,6 +187,9 @@ class HrSalaryRule(models.Model):
                  and the rate
         :rtype: (float, float, float)
         """
+
+        #import pdb; pdb.set_trace()
+
         self.ensure_one()
         if self.amount_select == "fix":
             try:

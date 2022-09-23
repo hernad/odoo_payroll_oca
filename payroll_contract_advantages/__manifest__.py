@@ -1,7 +1,7 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 {
-    "name": "Payroll Contract Advantages",
+    "name": "Payroll Contract Advantages OCA",
     "version": "14.0.2.0.0",
     "category": "Human Resources",
     "website": "https://github.com/OCA/payroll",

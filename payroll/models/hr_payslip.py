@@ -351,17 +351,29 @@ class HrPayslip(models.Model):
         leaves = {}
         calendar = contract.resource_calendar_id
         tz = timezone(calendar.tz)
+        domain = [('time_type', 'in', ['leave', 'other'])]
         day_leave_intervals = contract.employee_id.list_leaves(
-            day_from, day_to, calendar=contract.resource_calendar_id
-        )
+            day_from, day_to, calendar=contract.resource_calendar_id, domain=domain)
+
+
+        #import pdb; pdb.set_trace()
+
         for day, hours, leave in day_leave_intervals:
             holiday = leave[:1].holiday_id
+            name = "Paid Leaves"
+            code = "LEAVE_P"
+            if holiday.holiday_status_id.unpaid:
+                name = "Unapid Leaves"
+                code = "LEAVE_U"
+            if holiday.holiday_status_id.name and holiday.holiday_status_id.name == _('Noćni rad'):
+                code = "NOCNI_R"
+
             current_leave_struct = leaves.setdefault(
                 holiday.holiday_status_id,
                 {
-                    "name": holiday.holiday_status_id.name or _("Global Leaves"),
+                    "name": holiday.holiday_status_id.name or _(name),
                     "sequence": 5,
-                    "code": holiday.holiday_status_id.code or "GLOBAL",
+                    "code": code,
                     "number_of_days": 0.0,
                     "number_of_hours": 0.0,
                     "contract_id": contract.id,
@@ -384,24 +396,30 @@ class HrPayslip(models.Model):
         return leaves.values()
 
     def _compute_worked_days(self, contract, day_from, day_to):
+
         """
         Worked days computation
         @return: returns a list containing the total worked_days for the period
         of the payslip. This returns the FULL work days expected for the resource
         calendar selected for the employee (it don't substract leaves by default).
         """
-        work_data = contract.employee_id._get_work_days_data(
+        work_data = contract.employee_id._get_work_days_data_batch(
             day_from,
             day_to,
             calendar=contract.resource_calendar_id,
             compute_leaves=False,
+            domain=None,
         )
+        #import pdb; pdb.set_trace()
+
+        work_data_item = work_data.get(self.employee_id.id)
+
         return {
             "name": _("Normal Working Days paid at 100%"),
             "sequence": 1,
             "code": "WORK100",
-            "number_of_days": work_data["days"],
-            "number_of_hours": work_data["hours"],
+            "number_of_days": work_data_item["days"],
+            "number_of_hours": work_data_item["hours"],
             "contract_id": contract.id,
         }
 

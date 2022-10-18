@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Odoo Server 12.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-08 23:24+0000\n"
-"PO-Revision-Date: 2022-10-17 17:38+0200\n"
+"PO-Revision-Date: 2022-10-18 08:20+0200\n"
 "Last-Translator: Martin Trigaux, 2019\n"
 "Language-Team: Bosnian (https://www.transifex.com/odoo/teams/41243/bs/)\n"
 "Language: bs\n"
@@ -843,7 +843,7 @@ msgstr "Gotovo"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_search
 msgid "Done Payslip Batches"
-msgstr "Gotovi skupni obračuni plate"
+msgstr "Odobrene skupne platne liste"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_search
@@ -861,7 +861,7 @@ msgstr "U pripremi"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_search
 msgid "Draft Payslip Batches"
-msgstr "Skupni obračuni u pripremi"
+msgstr "Skupne platne liste u pripremi"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip__dynamic_filtered_payslip_lines
@@ -891,7 +891,7 @@ msgstr "Funkcija zaposlenog"
 #: model:ir.actions.act_window,name:payroll.hr_payslip_action
 #: model:ir.ui.menu,name:payroll.hr_payslip_menu
 msgid "Employee Payslips"
-msgstr "Obračunski listići zaposlenih"
+msgstr "Platne liste zaposlenih"
 
 #. module: payroll
 #: model:ir.model.fields,help:payroll.field_hr_contract__resource_calendar_id
@@ -1503,7 +1503,7 @@ msgstr "Obračun"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_search
 msgid "PaySlip Batch"
-msgstr "Skupni obračun"
+msgstr "Skupna obrada platnih listi"
 
 #. module: payroll
 #: model:ir.actions.report,name:payroll.payslip_details_report
@@ -1581,7 +1581,7 @@ msgstr "Automatske platne liste"
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip__payslip_run_id
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_search
 msgid "Payslip Batches"
-msgstr "Skupni obračunski listići"
+msgstr "Skupne platne liste"
 
 #. module: payroll
 #: model:ir.actions.act_window,name:payroll.hr_payslip_line_action_computation_details
@@ -1679,12 +1679,12 @@ msgstr "Obračunski listići"
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_form
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_tree
 msgid "Payslips Batches"
-msgstr "Skupni obračunski listići"
+msgstr "Skupne platne liste"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.view_hr_payslip_by_employees
 msgid "Payslips by Employees"
-msgstr "Obračunski listići po zaposlenim"
+msgstr "Platne liste po zaposlenim"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_search
@@ -1875,12 +1875,12 @@ msgstr "SMS greška u isporuci"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_salary_rule_category_view_form
 msgid "Salary Categories"
-msgstr "Kategorije plaća"
+msgstr "Kategorije plata"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Salary Computation"
-msgstr "Izračun plaća"
+msgstr "Obračun plata"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_salary_rule
@@ -1949,13 +1949,13 @@ msgstr "Platni listić %s za %s"
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_line_view_tree
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Salary Structure"
-msgstr "Struktura plaće"
+msgstr "Struktura obračuna plate"
 
 #. module: payroll
 #: model:ir.actions.act_window,name:payroll.hr_payroll_structure_action
 #: model:ir.ui.menu,name:payroll.hr_payroll_structure_menu
 msgid "Salary Structures"
-msgstr "Strukture plaća"
+msgstr "Strukture obračuna plate"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
@@ -1970,7 +1970,7 @@ msgstr "Zakazana isplata"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_search
 msgid "Search Payslip Batches"
-msgstr "Pretraži skupne obračunske listiće"
+msgstr "Pretraži skupne platne liste"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_line_view_search

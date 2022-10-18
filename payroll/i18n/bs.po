@@ -427,7 +427,7 @@ msgstr "Dvomjesečno"
 #. module: payroll
 #: model:ir.model.fields.selection,name:payroll.selection__hr_contract__schedule_pay__bi-weekly
 msgid "Bi-weekly"
-msgstr "Dvotjedno"
+msgstr "Dvosedmično"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_line_view_form
@@ -444,13 +444,13 @@ msgstr "Otkaži"
 #: model:ir.model.fields.selection,name:payroll.selection__hr_payslip_change_state__state__cancel
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Cancel Payslip"
-msgstr "Otkaži listić"
+msgstr "Otkaži platnu listu"
 
 #. module: payroll
 #: code:addons/payroll/models/hr_payslip.py:0
 #, python-format
 msgid "Cannot cancel a payslip that is done."
-msgstr "Ne može se otkazati platni listić koji je gotov."
+msgstr "Ne može se otkazati platna lista koji je potvrđen."
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip_line__category_id

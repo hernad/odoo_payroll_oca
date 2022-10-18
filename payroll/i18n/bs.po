@@ -12,7 +12,7 @@ msgstr ""
 "Project-Id-Version: Odoo Server 12.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-08 23:24+0000\n"
-"PO-Revision-Date: 2022-10-18 08:20+0200\n"
+"PO-Revision-Date: 2022-10-18 08:25+0200\n"
 "Last-Translator: Martin Trigaux, 2019\n"
 "Language-Team: Bosnian (https://www.transifex.com/odoo/teams/41243/bs/)\n"
 "Language: bs\n"
@@ -432,7 +432,7 @@ msgstr "Dvotjedno"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_line_view_form
 msgid "Calculations"
-msgstr "Izračuni"
+msgstr "Obračuni"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_change_state_form
@@ -586,7 +586,7 @@ msgstr "Doprinos preduzeća"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_salary_rule_view_form
 msgid "Computation"
-msgstr "Izračun"
+msgstr "Obračun"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip__compute_date
@@ -1893,7 +1893,7 @@ msgstr "Pravilo obračuna plate"
 #: model_terms:ir.ui.view,arch_db:payroll.hr_salary_rule_category_view_search
 #: model_terms:ir.ui.view,arch_db:payroll.hr_salary_rule_category_view_tree
 msgid "Salary Rule Categories"
-msgstr "Kategorije pravila izračuna plaća"
+msgstr "Kategorije pravila obračuna"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_salary_rule_category

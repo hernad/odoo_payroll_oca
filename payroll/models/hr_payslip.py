@@ -412,7 +412,10 @@ class HrPayslip(models.Model):
         )
         #import pdb; pdb.set_trace()
 
-        work_data_item = work_data.get(self.employee_id.id)
+        #if self.employee_id.id:
+        #    work_data_item = work_data.get(self.employee_id.id)
+        # work_data = { 27: { 'days': 21, 'hours': 168 }}
+        work_data_item = list(work_data.items())[0][1]
 
         return {
             "name": _("Normal Working Days paid at 100%"),

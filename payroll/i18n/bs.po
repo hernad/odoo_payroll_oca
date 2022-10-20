@@ -6,6 +6,7 @@
 # Bole <bole@dajmi5.com>, 2018
 # Boško Stojaković <bluesoft83@gmail.com>, 2019
 # Martin Trigaux, 2019
+# Ernad Husremović, 2022
 #
 msgid ""
 msgstr ""
@@ -989,17 +990,17 @@ msgstr "Generiraj"
 #: model:ir.actions.act_window,name:payroll.action_hr_payslip_by_employees
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_form
 msgid "Generate Payslips"
-msgstr "Generiši obračunske listiće"
+msgstr "Generiši obračun"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_payslip_employees
 msgid "Generate payslips for all selected employees"
-msgstr "Generiši obračunske listiće za sve odabrane zaposlene"
+msgstr "Generiši za sve odabrane zaposlene"
 
 #. module: payroll
 #: model:hr.salary.rule,name:payroll.hr_salary_rule_sales_commission
 msgid "Get 1% of sales"
-msgstr "Dobij 1% od prodaje"
+msgstr "Dobit 1% od prodaje"
 
 #. module: payroll
 #: code:addons/payroll/models/hr_payslip.py:0
@@ -1202,7 +1203,7 @@ msgstr ""
 #: model:ir.model.fields,field_description:payroll.field_report_payroll_report_payslipdetails____last_update
 #: model:ir.model.fields,field_description:payroll.field_res_config_settings____last_update
 msgid "Last Modified on"
-msgstr "Zadnje mijenjano"
+msgstr "Posljednja promjena"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_contribution_register__write_uid
@@ -1275,7 +1276,7 @@ msgstr "Upravljaj platom zaposlenog"
 #. module: payroll
 #: model:res.groups,name:payroll.group_payroll_manager
 msgid "Manager"
-msgstr "Upravitelj"
+msgstr "Menadžer"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip_line__condition_range_max
@@ -1473,18 +1474,18 @@ msgstr "Vrijednost parametra"
 #: model:ir.model.fields,field_description:payroll.field_hr_payroll_structure__parent_id
 #: model:ir.model.fields,field_description:payroll.field_hr_salary_rule_category__parent_id
 msgid "Parent"
-msgstr "Nasljeđeni"
+msgstr "Nadređeni"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip_line__parent_line_id
 msgid "Parent Payslip Line"
-msgstr "Glavna stavka platne liste"
+msgstr "Nadređena stavka liste"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip_line__parent_rule_id
 #: model:ir.model.fields,field_description:payroll.field_hr_salary_rule__parent_rule_id
 msgid "Parent Salary Rule"
-msgstr "Nadređeno pravilo obračuna plate"
+msgstr "Nadređeno pravilo obračuna"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_contribution_register__partner_id
@@ -1498,12 +1499,12 @@ msgstr "Partner"
 #: model_terms:ir.ui.view,arch_db:payroll.report_payslip
 #: model_terms:ir.ui.view,arch_db:payroll.report_payslipdetails
 msgid "Pay Slip"
-msgstr "Obračun"
+msgstr "Platna lista"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_search
 msgid "PaySlip Batch"
-msgstr "Skupna obrada platnih listi"
+msgstr "Grupna obrada"
 
 #. module: payroll
 #: model:ir.actions.report,name:payroll.payslip_details_report
@@ -1556,14 +1557,14 @@ msgstr "Zapisi obračuna plate"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payroll_structure_view_search
 msgid "Payroll Structures"
-msgstr "Strukture obračuna plaće"
+msgstr "Strukture obračuna plate"
 
 #. module: payroll
 #: model:ir.actions.report,name:payroll.action_report_payslip
 #: model:ir.model,name:payroll.model_hr_payslip
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Payslip"
-msgstr "Obračunski listić"
+msgstr "Platna lista"
 
 #. module: payroll
 #: code:addons/payroll/models/hr_payslip.py:0
@@ -1574,48 +1575,48 @@ msgstr "Platna lista 'Datum od' mora biti manja od 'Datum do'."
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip_line__payslip_run_id
 msgid "Payslip Batch"
-msgstr "Automatske platne liste"
+msgstr "Grupna obrada"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_payslip_run
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip__payslip_run_id
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_search
 msgid "Payslip Batches"
-msgstr "Skupne platne liste"
+msgstr "Grupne platne liste"
 
 #. module: payroll
 #: model:ir.actions.act_window,name:payroll.hr_payslip_line_action_computation_details
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip__payslip_count
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Payslip Computation Details"
-msgstr "Detalji obračuna platnih listića"
+msgstr "Detalji obračuna"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_employee__payslip_count
 msgid "Payslip Count"
-msgstr "Broj obračunskih listića"
+msgstr "Broj platnih listi"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_report_payroll_report_payslipdetails
 msgid "Payslip Details Report"
-msgstr "Detaljni izvještaj obračunskih listića"
+msgstr "Detaljni izvještaj platne liste"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_payslip_input
 msgid "Payslip Input"
-msgstr "Ulaz obračunskih listića"
+msgstr "Ulazni podatak"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip__input_line_ids
 msgid "Payslip Inputs"
-msgstr "Ulazi obračunskih listića"
+msgstr "Ulazni podaci"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_payslip_line
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_line_view_form
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Payslip Line"
-msgstr "Stavka obračunskog listića"
+msgstr "Stavka platne liste"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_line_view_form
@@ -1644,13 +1645,13 @@ msgstr "Stavke obračunskog listića po registru doprinosa"
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip__name
 msgid "Payslip Name"
-msgstr "Naziv obračunskog listića"
+msgstr "Naziv"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_payslip_worked_days
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip__worked_days_line_ids
 msgid "Payslip Worked Days"
-msgstr "Odrađeni dani obračunskog listića"
+msgstr "Radni dani"
 
 #. module: payroll
 #: model:mail.template,subject:payroll.mail_template_hr_payslip

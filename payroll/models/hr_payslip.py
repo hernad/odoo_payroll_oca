@@ -324,6 +324,9 @@ class HrPayslip(models.Model):
             day_from = datetime.combine(date_from, time.min)
             day_to = datetime.combine(date_to, time.max)
             day_contract_start = datetime.combine(contract.date_start, time.min)
+            day_contract_end = day_to
+            if contract.date_end:
+               day_contract_end = datetime.combine(contract.date_end, time.max)
             # Support for the hr_public_holidays module.
             contract = contract.with_context(
                 employee_id=self.employee_id.id, exclude_public_holidays=True
@@ -331,12 +334,19 @@ class HrPayslip(models.Model):
             # only use payslip day_from if it's greather than contract start date
             if day_from < day_contract_start:
                 day_from = day_contract_start
+            if day_to > day_contract_end:
+                day_to = day_contract_end
             # == compute leave days == #
             leaves = self._compute_leave_days(contract, day_from, day_to)
             res.extend(leaves)
             # == compute worked days == #
             attendances = self._compute_worked_days(contract, day_from, day_to)
             res.append(attendances)
+
+            # == compute timesheet hours-days == #
+            timesheets = self._compute_timesheet_hours(contract, day_from, day_to)
+            for timesheet in timesheets:
+                res.append(timesheet)
         return res
 
     def _compute_leave_days(self, contract, day_from, day_to):
@@ -355,25 +365,31 @@ class HrPayslip(models.Model):
         day_leave_intervals = contract.employee_id.list_leaves(
             day_from, day_to, calendar=contract.resource_calendar_id, domain=domain)
 
+        for day, hours, leaves_list in day_leave_intervals:
+            #if len(leaves_list) == 1:
+            #    holiday_name = leaves_list[0].holiday_id.holiday_status_id.name
+            #else:
+            #    # only one leave has analytic.line items (leave.timesheet_ids)
+            #    holiday_name = list(filter(lambda leave: len(leave.timesheet_ids) > 0, leaves_list))[0].name
+            holiday = leaves_list[:1].holiday_id
+            name = "Leaves"
+            code = "LEAVE_"
+            #if holiday.holiday_status_id.unpaid:
+            #    name = "Unapid Leaves"
+            #    code = "LEAVE_U"
 
-        #import pdb; pdb.set_trace()
-
-        for day, hours, leave in day_leave_intervals:
-            holiday = leave[:1].holiday_id
-            name = "Paid Leaves"
-            code = "LEAVE_P"
-            if holiday.holiday_status_id.unpaid:
-                name = "Unapid Leaves"
-                code = "LEAVE_U"
-            if holiday.holiday_status_id.name and holiday.holiday_status_id.name == _('Noćni rad'):
-                code = "NOCNI_R"
+            code = None
+            if holiday:
+                code = holiday.holiday_status_id.name.replace(' ', '_').upper().replace('Č', 'C').replace('Ć','C')
+                for d, e in [('Č', 'C'), ('Ć', 'C'), ('Ž', 'Z'), ('Đ', 'DJ')]:
+                    code = code.replace(d, e)
 
             current_leave_struct = leaves.setdefault(
                 holiday.holiday_status_id,
                 {
-                    "name": holiday.holiday_status_id.name or _(name),
+                    "name": holiday.holiday_status_id.name or _("Global Leaves"),
                     "sequence": 5,
-                    "code": code,
+                    "code": code or "GLOBAL",
                     "number_of_days": 0.0,
                     "number_of_hours": 0.0,
                     "contract_id": contract.id,
@@ -425,6 +441,53 @@ class HrPayslip(models.Model):
             "number_of_hours": work_data_item["hours"],
             "contract_id": contract.id,
         }
+
+
+    def _compute_timesheet_hours(self, contract, date_from, date_to):
+        """
+        original author: Cybrosys Techno Solutions, LGPL-3
+        https://apps.odoo.com/apps/modules/10.0/payroll_timesheet/
+
+        Function which computes total hours, timesheethours, attendances, timehseet difference,
+        :param employee_id:
+        :param date_from:
+        :param date_to:
+        :return:  computed total timesheet hours within duration, total hours by working schedule
+        """
+        if not contract:
+            return {}
+        env = self.env
+
+        # get timesheets for employee
+        employee_id = contract.employee_id
+
+        timesheet_data = []
+        for work_type in ('standard', 'night', 'terrain'):
+            analytic_line_object = env['account.analytic.line']
+            lines = analytic_line_object.search([
+                ('employee_id', '=', employee_id.id),
+                ('date', '>=', date_from),
+                ('date', '<=', date_to),
+                ('work_type', '=', work_type),
+                ('global_leave_id', '=', False),
+                ('holiday_id', '=', False)
+            ])
+            timesheet_hours = 0.0
+            for line in lines:
+                # TODO: use product_uom_id
+                # TODO: day = timesheet_hours / 8?  use _get_work_hours?
+                timesheet_hours += line.unit_amount
+            if timesheet_hours > 0:
+                timesheet_data.append({
+                    "name": _("Timesheet data " + work_type),
+                    "sequence": 10,
+                    "code": "TSH_" + work_type.upper(),
+                    "number_of_hours": timesheet_hours,
+                    "number_of_days": timesheet_hours / 8,
+                    "contract_id": contract,
+                })
+
+        return timesheet_data
 
     @api.model
     def get_inputs(self, contracts, date_from, date_to):

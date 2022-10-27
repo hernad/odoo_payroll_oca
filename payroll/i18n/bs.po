@@ -445,7 +445,7 @@ msgstr "Otkaži"
 #: model:ir.model.fields.selection,name:payroll.selection__hr_payslip_change_state__state__cancel
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Cancel Payslip"
-msgstr "Otkaži platnu listu"
+msgstr "Otkaži"
 
 #. module: payroll
 #: code:addons/payroll/models/hr_payslip.py:0
@@ -1807,7 +1807,7 @@ msgstr "Referenca"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Refetch Payslip Data"
-msgstr "Ponovo uzmi podatke za platnu listu"
+msgstr "Ponovo uzmi podatke"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
@@ -2207,17 +2207,17 @@ msgstr "Sedmično"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Worked Day"
-msgstr "Odrađeno dana"
+msgstr "Radni dan"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Worked Days"
-msgstr "Odrađeni dani"
+msgstr "Radni dani"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Worked Days & Inputs"
-msgstr "Odrađeni dani i Ulazi"
+msgstr "Radni dani i Ulazi"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_contract__resource_calendar_id

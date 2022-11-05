@@ -1274,6 +1274,24 @@ msgid "Normal Working Days paid at 100%"
 msgstr ""
 
 #. module: payroll
+#: code:addons/payroll/models/hr_payslip.py:0
+#, python-format
+msgid "Timesheet data standard"
+msgstr ""
+
+#. module: payroll
+#: code:addons/payroll/models/hr_payslip.py:0
+#, python-format
+msgid "Timesheet data night"
+msgstr ""
+
+#. module: payroll
+#: code:addons/payroll/models/hr_payslip.py:0
+#, python-format
+msgid "Timesheet data terrain"
+msgstr ""
+
+#. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_salary_rule_category_view_form
 #: model_terms:ir.ui.view,arch_db:payroll.hr_salary_rule_view_form
 msgid "Notes"

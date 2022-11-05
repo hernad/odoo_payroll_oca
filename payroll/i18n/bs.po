@@ -13,7 +13,7 @@ msgstr ""
 "Project-Id-Version: Odoo Server 12.0\n"
 "Report-Msgid-Bugs-To: \n"
 "POT-Creation-Date: 2020-10-08 23:24+0000\n"
-"PO-Revision-Date: 2022-10-18 08:25+0200\n"
+"PO-Revision-Date: 2022-11-04 09:35+0100\n"
 "Last-Translator: Martin Trigaux, 2019\n"
 "Language-Team: Bosnian (https://www.transifex.com/odoo/teams/41243/bs/)\n"
 "Language: bs\n"
@@ -182,7 +182,7 @@ msgstr "<strong>Adresa</strong>"
 #: model_terms:ir.ui.view,arch_db:payroll.report_payslip
 #: model_terms:ir.ui.view,arch_db:payroll.report_payslipdetails
 msgid "<strong>Authorized signature</strong>"
-msgstr "<strong>Autorizovani potpis</strong>"
+msgstr "<strong>Ovlašteni potpis</strong>"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.report_payslip
@@ -598,7 +598,7 @@ msgstr "Datum obračuna"
 #: model:ir.model.fields.selection,name:payroll.selection__hr_payslip_change_state__state__verify
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Compute Sheet"
-msgstr "Obračun liste"
+msgstr "Obračun plate"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip_line__condition_select
@@ -1383,6 +1383,24 @@ msgid "Normal Working Days paid at 100%"
 msgstr "Standarni radni dani plaćeni 100%"
 
 #. module: payroll
+#: code:addons/payroll/models/hr_payslip.py:0
+#, python-format
+msgid "Timesheet data night"
+msgstr "Podaci o noćnom radu"
+
+#. module: payroll
+#: code:addons/payroll/models/hr_payslip.py:0
+#, python-format
+msgid "Timesheet data standard"
+msgstr "Podaci o redovnom radu"
+
+#. module: payroll
+#: code:addons/payroll/models/hr_payslip.py:0
+#, python-format
+msgid "Timesheet data terrain"
+msgstr "Podaci o terenskom radu"
+
+#. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_salary_rule_category_view_form
 #: model_terms:ir.ui.view,arch_db:payroll.hr_salary_rule_view_form
 msgid "Notes"
@@ -1630,7 +1648,7 @@ msgstr "Detalji platne liste"
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_line_view_search
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Payslip Lines"
-msgstr "Stavke obračunskog listića"
+msgstr "Stavke platne liste"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.report_payslipdetails
@@ -1876,7 +1894,7 @@ msgstr "SMS greška u isporuci"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_salary_rule_category_view_form
 msgid "Salary Categories"
-msgstr "Kategorije plata"
+msgstr "Kategorije"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
@@ -1886,7 +1904,7 @@ msgstr "Obračun plata"
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_salary_rule
 msgid "Salary Rule"
-msgstr "Pravilo obračuna plate"
+msgstr "Pravilo"
 
 #. module: payroll
 #: model:ir.actions.act_window,name:payroll.hr_salary_rule_category_action
@@ -1894,36 +1912,36 @@ msgstr "Pravilo obračuna plate"
 #: model_terms:ir.ui.view,arch_db:payroll.hr_salary_rule_category_view_search
 #: model_terms:ir.ui.view,arch_db:payroll.hr_salary_rule_category_view_tree
 msgid "Salary Rule Categories"
-msgstr "Kategorije pravila obračuna"
+msgstr "Kategorije"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_salary_rule_category
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_line_view_search
 #: model_terms:ir.ui.view,arch_db:payroll.report_payslipdetails
 msgid "Salary Rule Category"
-msgstr "Kategorija obračuna plaća"
+msgstr "Kategorija"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_rule_input
 #: model:ir.model.fields,field_description:payroll.field_hr_rule_input__input_id
 msgid "Salary Rule Input"
-msgstr "Ulazni podatak pravila"
+msgstr "Ulazni podatak"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_rule_parameter
 #: model_terms:ir.ui.view,arch_db:payroll.hr_rule_parameter_view_form
 msgid "Salary Rule Parameter"
-msgstr "Prodajno pravilo - parametar"
+msgstr "Parametar"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_rule_parameter_value
 msgid "Salary Rule Parameter Value"
-msgstr "Prodajno pravilo - vrijednost parametra"
+msgstr "Vrijednost parametra"
 
 #. module: payroll
 #: model:ir.actions.act_window,name:payroll.hr_rule_parameter_action
 msgid "Salary Rule Parameters"
-msgstr "Prodajna pravila - parametri"
+msgstr "Parametri"
 
 #. module: payroll
 #: model:ir.actions.act_window,name:payroll.action_salary_rule_form
@@ -1961,7 +1979,7 @@ msgstr "Strukture obračuna"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Salary rules apearing on payslip"
-msgstr "Prodajna pravila koja se pojavljuju na platnoj listi"
+msgstr "Pravila prodaje"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_contract__schedule_pay
@@ -1976,7 +1994,7 @@ msgstr "Pretraži grupne obračune"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_line_view_search
 msgid "Search Payslip Lines"
-msgstr "Pretraži stavke platnih listi"
+msgstr "Pretraži stavke"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_search
@@ -2284,84 +2302,3 @@ msgstr "pravilo će utjecati na varijablu"
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_line_view_form
 msgid "total_net"
 msgstr "total_net"
-
-#~ msgid "Draft Slip"
-#~ msgstr "Obračun u pripremi"
-
-#~ msgid "Total Working Days"
-#~ msgstr "Ukupno odrađenih dana"
-
-#~ msgid "Details By Salary Rule Category"
-#~ msgstr "Detalji po kategoriji pravila plate"
-
-#~ msgid "Advantage Name"
-#~ msgstr "Naziv dodatka"
-
-#~ msgid "Contract Advantage Templates"
-#~ msgstr "Predložak dodatka ugovora"
-
-#~ msgid "Default value for this advantage"
-#~ msgstr "Zadana vrijednost za ovaj dodatak"
-
-#~ msgid "Employee's Advantage on Contract"
-#~ msgstr "Dodatak na ugovoru zaposlenog"
-
-#~ msgid "Lower Bound"
-#~ msgstr "Niža granica"
-
-#~ msgid "Lower bound authorized by the employer for this advantage"
-#~ msgstr ""
-#~ "Niža granica autorizovana od strane poslodavca za ovaj dodatak na platu"
-
-#~ msgid "Upper Bound"
-#~ msgstr "Gornja granica"
-
-#~ msgid "Upper bound authorized by the employer for this advantage"
-#~ msgstr "Gornja granica autorizovana od strane poslodavca za ovaj dodatak"
-
-#~ msgid "Wrong python code defined for salary rule %s (%s)."
-#~ msgstr "Pogrešan python kod za definisano pravilo obračuna plate %s (%s)."
-
-#~ msgid "Wrong python condition defined for salary rule %s (%s)."
-#~ msgstr "Pogrešan python uslov za definisano pravilo obračuna plate %s (%s)."
-
-#~ msgid ""
-#~ "<span colspan=\"4\" nolabel=\"1\">This wizard will generate payslips for "
-#~ "all selected employee(s) based on the dates and credit note specified on "
-#~ "Payslips Run.</span>"
-#~ msgstr ""
-#~ "<span colspan=\"4\" nolabel=\"1\">Ovaj čarobnjak će generisati obračunske "
-#~ "listiće za sve odabrane radnike bazirano na datumima i finansijske "
-#~ "olakšice koje su specifirane na izvršenjima platnih listića.</span>"
-
-#~ msgid "PaySlip Lines By Conribution Register"
-#~ msgstr "Stavke platnih listića po registrima doprinosa"
-
-#~ msgid "<span class=\"o_form_label\">Payroll Rules</span>"
-#~ msgstr "<span class=\"o_form_label\">Pravila obračuna plate</span>"
-
-#~ msgid "Account"
-#~ msgstr "Konto"
-
-#~ msgid "Choose a Payroll Localization"
-#~ msgstr "Odaberi lokalizaciju obračuna plate"
-
-#~ msgid "Conveyance Allowance For Gravie"
-#~ msgstr "Naknada za prevoz za povećanje"
-
-#~ msgid "French Payroll"
-#~ msgstr "Francuska plata"
-
-#~ msgid "Payroll rules that apply to your country"
-#~ msgstr "Pravila obračuna plate za primjenu u ovoj zemlji"
-
-#~ msgid "Payslip 'Date From' must be earlier 'Date To'."
-#~ msgstr "Datum 'od' na obračunskom listiću mora biti prije datuma 'do'."
-
-#~ msgid "Refund: "
-#~ msgstr "Povrat :"
-
-#~ msgid "You cannot delete a payslip which is not draft or cancelled!"
-#~ msgstr ""
-#~ "Ne možete obrisati platni listić koji nije u statusu u pripremi ili "
-#~ "otkazan!"

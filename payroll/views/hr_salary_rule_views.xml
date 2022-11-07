@@ -70,14 +70,16 @@
         <field name="model">hr.salary.rule</field>
         <field name="arch" type="xml">
             <form string="Salary Rules">
-                <label for="name" class="oe_edit_only" />
-                <h1>
-                    <field name="name" />
-                </h1>
-                <label for="category_id" class="oe_edit_only" />
-                <h2>
-                    <field name="category_id" />
-                </h2>
+                <group class="oe_edit_only">
+                    <label for="name" />
+                    <h1>
+                        <field name="name" />
+                    </h1>
+                    <label for="category_id" />
+                    <h2>
+                        <field name="category_id" />
+                    </h2>
+                </group>
                 <group name="principal">
                     <group>
                         <field name="code" />

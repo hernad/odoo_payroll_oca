@@ -70,6 +70,18 @@ class PayslipDetailsReport(models.AbstractModel):
                         )
         return res
 
+    def show_rate_or_quantity(self, rate, quantity):
+
+        if quantity == 0 and rate == 0:
+            return ""
+
+        if rate == 100.00:
+            ret = '{:g}'.format(quantity)
+        else:
+            ret = '{:g}%'.format(rate)
+        return ret
+
+
     def get_lines_by_contribution_register(self, payslip_lines):
         result = {}
         res = {}
@@ -80,22 +92,34 @@ class PayslipDetailsReport(models.AbstractModel):
         for payslip_id, lines_dict in result.items():
             res.setdefault(payslip_id, [])
             for register, lines in lines_dict.items():
+                #res[payslip_id].append(
+                #    {
+                #        "register_name": register.name,
+                #        "total": sum(lines.mapped("total")),
+                #    }
+                #)
                 res[payslip_id].append(
-                    {
-                        "register_name": register.name,
+                      {
+                        "code": "",
+                        "name": "=== " + register.name + " ===",
+                        "quantity": 0,
+                        "rate": 0,
+                        "amount": 0,
                         "total": sum(lines.mapped("total")),
-                    }
+                       }
                 )
                 for line in lines:
-                    res[payslip_id].append(
-                        {
-                            "name": line.name,
-                            "code": line.code,
-                            "quantity": line.quantity,
-                            "amount": line.amount,
-                            "total": line.total,
-                        }
-                    )
+                    if line.quantity != 0:
+                        res[payslip_id].append(
+                            {
+                                "name": line.name,
+                                "code": line.code,
+                                "rate": line.rate,
+                                "quantity": line.quantity,
+                                "amount": line.amount,
+                                "total": line.total,
+                            }
+                        )
         return res
 
     @api.model
@@ -112,6 +136,7 @@ class PayslipDetailsReport(models.AbstractModel):
                 )
             ),
             "get_lines_by_contribution_register": self.get_lines_by_contribution_register(  # noqa: disable=B950
-                payslips.mapped("line_ids").filtered(lambda r: r.appears_on_payslip)
+                payslips.mapped("line_ids").filtered(lambda line: line.quantity != 0)
             ),
+            "show_rate_or_quantity": self.show_rate_or_quantity
         }

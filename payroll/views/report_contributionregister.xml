@@ -3,7 +3,7 @@
     <template id="report_contributionregister">
         <t t-call="web.html_container">
             <t t-foreach="docs" t-as="o">
-                <t t-call="web.external_layout">
+                <t t-call="web.internal_layout">
                     <div class="page">
                         <h2>PaySlip Lines by Contribution Register</h2>
                         <div class="row mt32 mb32">
@@ -32,7 +32,7 @@
                                 </tr>
                             </thead>
                             <tbody>
-                                <tr t-foreach="lines_data.get(o.id, [])" t-as="line">
+                                <tr t-foreach="lines_data.get(o.id, []).filtered(lambda line: line.quantity != 0)" t-as="line">
                                     <td>
                                         <span t-esc="line.slip_id.name" />
                                     </td>
@@ -42,16 +42,16 @@
                                     <td>
                                         <span t-esc="line.name" />
                                     </td>
-                                    <td>
-                                        <span t-esc="line.quantity" />
+                                    <td class="text-end">
+                                        <span t-esc="'{:g}'.format(line.quantity) if round(line.quantity,0)!=line.quantity else '{:.0f}'.format(line.quantity) if line.rate==100.00 else ('{:g}%'.format(line.rate) if round(line.rate,0)!=line.rate else '{:.0f}%'.format(line.rate))" />
                                     </td>
-                                    <td class="text-right">
+                                    <td class="text-end">
                                         <span
                                             t-esc="line.amount"
                                             t-esc-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
                                         />
                                     </td>
-                                    <td class="text-right">
+                                    <td class="text-end">
                                         <span
                                             t-esc="line.total"
                                             t-esc-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
@@ -67,7 +67,7 @@
                                         <td>
                                             <strong>Total</strong>
                                         </td>
-                                        <td class="text-right">
+                                        <td class="text-end">
                                             <span
                                                 t-esc="lines_total.get(o.id)"
                                                 t-esc-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'

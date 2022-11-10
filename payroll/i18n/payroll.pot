@@ -1416,7 +1416,7 @@ msgstr ""
 
 #. module: payroll
 #: model:ir.actions.act_window,name:payroll.action_payslip_lines_contribution_register
-msgid "PaySlip Lines"
+msgid "Payslip Contribution Register Lines"
 msgstr ""
 
 #. module: payroll

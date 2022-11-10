@@ -21,6 +21,7 @@ class ContributionRegisterReport(models.AbstractModel):
             WHERE (hp.date_from >= %s) AND (hp.date_to <= %s)
             AND pl.register_id in %s
             AND hp.state = 'done'
+            AND pl.quantity <> 0
             ORDER BY pl.slip_id, pl.sequence""",
             (date_from, date_to, tuple(register_ids)),
         )

@@ -77,45 +77,69 @@
                                 </td>
                             </tr>
                         </table>
-                        <table class="table table-sm">
-                            <thead>
-                                <tr>
-                                    <th>Code</th>
-                                    <th>Name</th>
-                                    <th>Quantity/rate</th>
-                                    <th>Amount</th>
-                                    <th>Total</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr
-                                    t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.quantity != 0)"
-                                    t-as="line"
-                                >
-                                    <td>
-                                        <span t-field="line.code" />
-                                    </td>
-                                    <td>
-                                        <span t-field="line.name" />
-                                    </td>
-                                    <td class="text-end">
-                                        <span t-esc="'{:g}'.format(line.quantity) if round(line.quantity,0)!=line.quantity else '{:.0f}'.format(line.quantity) if line.rate==100.00 else ('{:g}%'.format(line.rate) if round(line.rate,0)!=line.rate else '{:.0f}%'.format(line.rate))" />
-                                    </td>
-                                    <td class="text-end">
-                                        <span
-                                            t-esc="line.amount"
-                                            t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
-                                        />
-                                    </td>
-                                    <td class="text-end">
-                                        <span
-                                            t-esc="line.total"
-                                            t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
-                                        />
-                                    </td>
-                                </tr>
-                            </tbody>
-                        </table>
+
+
+
+                                <t t-set="payslip_contracts" t-value="[]"/>
+                                <t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.quantity != 0)" t-as="l">
+                                    <t t-set="payslip_contracts" t-value="payslip_contracts + [l.contract_id]"/>
+                                </t>
+
+                                <t t-foreach="set(payslip_contracts)" t-as="contract">
+                                    <div class="row mt32 mb32">
+                                       <strong t-esc="'== UGOVOR: ' + contract.name + ' == '"/>
+                                       <span t-field="contract.date_start" /> - <span t-field="contract.date_end" />
+                                    </div>
+                                    <table class="table table-sm">
+                                        <thead>
+                                            <tr>
+                                                <th>Code</th>
+                                                <th>Name</th>
+                                                <th>Quantity/rate</th>
+                                                <th>Amount</th>
+                                                <th>Total</th>
+                                             </tr>
+                                         </thead>
+                                         <tbody>
+                                           <tr
+                                               t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.quantity != 0)"
+                                               t-as="line" >
+
+                                                <t t-if="contract.id==line.contract_id.id">
+                                                    <td>
+                                                        <span t-field="line.code" />
+                                                    </td>
+                                                    <td>
+                                                        <span t-field="line.name" />
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span t-esc="'{:g}'.format(line.quantity) if round(line.quantity,0)!=line.quantity else '{:.0f}'.format(line.quantity) if line.rate==100.00 else ('{:g}%'.format(line.rate) if round(line.rate,0)!=line.rate else '{:.0f}%'.format(line.rate))" />
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span
+                                                            t-esc="line.amount"
+                                                            t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
+                                                        />
+                                                    </td>
+                                                    <td class="text-end">
+                                                        <span
+                                                            t-esc="line.total"
+                                                            t-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
+                                                        />
+                                                    </td>
+                                                </t>
+                                           </tr>
+                                         </tbody>
+                                    </table>
+                                    <t t-if="not contract_last">
+                                      <div style="page-break-after: always;"><br/></div>
+                                    </t>
+                                </t>
+
+
+
+
+
                         <p class="text-end">
                             <strong>Authorized signature</strong>
                         </p>

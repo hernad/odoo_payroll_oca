@@ -285,8 +285,10 @@ class HrPayslip(models.Model):
             # if we don't give the contract, then the rules to apply should be
             # for all current contracts of the employee
             contract_ids = (
-                payslip.contract_id.ids
-                or payslip.employee_id._get_contracts(
+                #hernad ne gledaj payslip.contract
+                #payslip.contract_id.ids
+                #or
+                payslip.employee_id._get_contracts(
                     date_from=payslip.date_from, date_to=payslip.date_to
                 ).ids
             )
@@ -430,7 +432,6 @@ class HrPayslip(models.Model):
             domain=None,
         )
 
-
         #import pdb; pdb.set_trace()
 
         #if self.employee_id.id:
@@ -550,30 +551,33 @@ class HrPayslip(models.Model):
                 )
         return res
 
-    def _init_payroll_dict_contracts(self):
-        return {
-            "count": 0,
-        }
+    #def _init_payroll_dict_contracts(self):
+    #    return {
+    #        "count": 0,
+    #    }
 
-    def get_payroll_dict(self, contracts):
+    def get_payroll_dict(self, contract):
         """Setup miscellaneous dictionary values.
         Other modules may overload this method to inject discreet values into
         the salary rules. Such values will be available to the salary rule
         under the `payroll.` prefix.
 
         This method is evaluated once per payslip.
-        :param contracts: Recordset of all hr.contract records in this payslip
+        :param contract: hr.contract record
         :return: a dictionary of discreet values and/or Browsable Objects
         """
         self.ensure_one()
 
-        res = {
-            # In salary rules refer to this as: payroll.contracts.count
-            "contracts": BaseBrowsableObject(self._init_payroll_dict_contracts()),
-        }
-        res["contracts"].count = len(contracts)
+        #res = {
+        #    # In salary rules refer to this as: payroll.contracts.count
+        #    "contracts": BaseBrowsableObject(self._init_payroll_dict_contracts()),
+        #}
+        #res["contracts"].count = len(contract)
 
-        return res
+        #return res
+        return {
+            "contract": contract
+        }
 
     def get_current_contract_dict(self, contract, contracts):
         """Contract dependent dictionary values.
@@ -605,10 +609,10 @@ class HrPayslip(models.Model):
 
         return {}
 
-    def _get_baselocaldict(self, contracts):
+    def _get_baselocaldict(self, contract):
         self.ensure_one()
         worked_days_dict = {
-            line.code: line for line in self.worked_days_line_ids if line.code
+            line.code: line for line in self.worked_days_line_ids if line.code and line.contract_id == contract
         }
         input_lines_dict = {
             line.code: line for line in self.input_line_ids if line.code
@@ -618,7 +622,7 @@ class HrPayslip(models.Model):
             "worked_days": WorkedDays(self.employee_id.id, worked_days_dict, self.env),
             "inputs": InputLine(self.employee_id.id, input_lines_dict, self.env),
             "payroll": BrowsableObject(
-                self.employee_id.id, self.get_payroll_dict(contracts), self.env
+                self.employee_id.id, self.get_payroll_dict(contract), self.env
             ),
             "current_contract": BrowsableObject(self.employee_id.id, {}, self.env),
             "categories": BrowsableObject(self.employee_id.id, {}, self.env),
@@ -627,11 +631,12 @@ class HrPayslip(models.Model):
         }
         return localdict
 
-    def _get_salary_rules(self, contracts, payslip):
-        if len(contracts) == 1 and payslip.struct_id:
-            structure_ids = list(set(payslip.struct_id._get_parent_structure().ids))
-        else:
-            structure_ids = contracts.get_all_structures()
+    def _get_salary_rules(self, contract ): #, payslip):
+        #if len(contracts) == 1 and payslip.struct_id:
+        #    structure_ids = list(set(payslip.struct_id._get_parent_structure().ids))
+        #else:
+        structure_ids = contract.get_all_structures()
+
         rule_ids = (
             self.env["hr.payroll.structure"].browse(structure_ids).get_all_rules()
         )
@@ -651,7 +656,10 @@ class HrPayslip(models.Model):
         localdict[rule.code] = rule_total
         localdict["rules"].dict[rule.code] = rule
         localdict["result_rules"].dict[rule.code] = BaseBrowsableObject(
-            {"quantity": qty, "rate": rate, "amount": amount, "total": rule_total}
+            {
+             "quantity": qty, "rate": rate,
+             "amount": amount, "total": rule_total
+            }
         )
         # sum the amount for its salary category
         localdict = self._sum_salary_rule_category(
@@ -692,8 +700,10 @@ class HrPayslip(models.Model):
         blacklist = []
         payslip = self.env["hr.payslip"].browse(payslip_id)
         contracts = self.env["hr.contract"].browse(contract_ids)
-        baselocaldict = payslip._get_baselocaldict(contracts)
+
         for contract in contracts:
+            # baselocaldict for every contract
+            baselocaldict = payslip._get_baselocaldict(contract)
             # assign "current_contract" dict
             baselocaldict["current_contract"] = BrowsableObject(
                 payslip.employee_id.id,
@@ -704,7 +714,7 @@ class HrPayslip(models.Model):
             localdict = dict(
                 baselocaldict, employee=contract.employee_id, contract=contract
             )
-            for rule in self._get_salary_rules(contracts, payslip):
+            for rule in self._get_salary_rules(contract):
                 localdict["result"] = None
                 localdict["result_qty"] = 1.0
                 localdict["result_rate"] = 100
@@ -750,29 +760,30 @@ class HrPayslip(models.Model):
         # We check if contract_id is present, if not we fill with the
         # ------------ hernad: bug samo jedan contract se uzima !!!!!!!!!!!!!!!!!!!!!!!!!--------------------------
         # first contract of the employee. If not contract present, we return.
-        if not self.env.context.get("contract"):
-            contract_ids = employee.contract_id.ids
-        else:
-            if contract_id:
-                contract_ids = [contract_id]
-            else:
-                contract_ids = employee._get_contracts(
-                    date_from=date_from, date_to=date_to
-                ).ids
+        #if not self.env.context.get("contract"):
+        #    contract_ids = employee.contract_id.ids
+        #else:
+        #    if contract_id:
+        #        contract_ids = [contract_id]
+        #    else:
+
+        contract_ids = employee._get_contracts(date_from=date_from, date_to=date_to).ids
         if not contract_ids:
             return res
-        contract = self.env["hr.contract"].browse(contract_ids[0])
-        res["value"].update({"contract_id": contract.id})
+
+        #contract = self.env["hr.contract"].browse(contract_ids[0])
+        #res["value"].update({"contract_id": contract.id})
         # We check if struct_id is already filled, otherwise we assign the contract struct.
         # If contract don't have a struct, we return.
-        if struct_id:
-            res["value"].update({"struct_id": struct_id[0]})
-        else:
-            struct = contract.struct_id
-            if not struct:
-                return res
-            res["value"].update({"struct_id": struct.id})
+        #if struct_id:
+        #    res["value"].update({"struct_id": struct_id[0]})
+        #else:
+        #    struct = contract.struct_id
+        #    if not struct:
+        #        return res
+        #    res["value"].update({"struct_id": struct.id})
         # Computation of the salary input and worked_day_lines
+
         contracts = self.env["hr.contract"].browse(contract_ids)
         worked_days_line_ids = self.get_worked_day_lines(contracts, date_from, date_to)
         input_line_ids = self.get_inputs(contracts, date_from, date_to)

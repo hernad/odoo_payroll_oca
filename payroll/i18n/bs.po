@@ -598,7 +598,7 @@ msgstr "Datum obračuna"
 #: model:ir.model.fields.selection,name:payroll.selection__hr_payslip_change_state__state__verify
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Compute Sheet"
-msgstr "Obračun plate"
+msgstr "Obračun"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip_line__condition_select
@@ -630,7 +630,7 @@ msgstr "Konfiguracija"
 #: model:ir.model.fields.selection,name:payroll.selection__hr_payslip_change_state__state__done
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Confirm"
-msgstr "Portvrdi"
+msgstr "Potvrdi"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip__contract_id
@@ -844,7 +844,7 @@ msgstr "Gotovo"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_search
 msgid "Done Payslip Batches"
-msgstr "Odobrene skupne platne liste"
+msgstr "Odobrene grupne platne liste"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_search
@@ -862,7 +862,7 @@ msgstr "U pripremi"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_search
 msgid "Draft Payslip Batches"
-msgstr "Skupne platne liste u pripremi"
+msgstr "Grupne platne liste u pripremi"
 
 #. module: payroll
 #: model:ir.model.fields,field_description:payroll.field_hr_payslip__dynamic_filtered_payslip_lines
@@ -892,7 +892,7 @@ msgstr "Funkcija zaposlenog"
 #: model:ir.actions.act_window,name:payroll.hr_payslip_action
 #: model:ir.ui.menu,name:payroll.hr_payslip_menu
 msgid "Employee Payslips"
-msgstr "Platne liste zaposlenih"
+msgstr "Platne liste pojedinačno"
 
 #. module: payroll
 #: model:ir.model.fields,help:payroll.field_hr_contract__resource_calendar_id
@@ -984,13 +984,13 @@ msgstr "Opšte"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.view_hr_payslip_by_employees
 msgid "Generate"
-msgstr "Generiraj"
+msgstr "Generiši"
 
 #. module: payroll
 #: model:ir.actions.act_window,name:payroll.action_hr_payslip_by_employees
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_form
 msgid "Generate Payslips"
-msgstr "Generiši obračun"
+msgstr "Generiši plate"
 
 #. module: payroll
 #: model:ir.model,name:payroll.model_hr_payslip_employees
@@ -1006,7 +1006,7 @@ msgstr "Dobit 1% od prodaje"
 #: code:addons/payroll/models/hr_payslip.py:0
 #, python-format
 msgid "Global Leaves"
-msgstr "Globalne odsutnosti"
+msgstr "Odsustva (globalno)"
 
 #. module: payroll
 #: model:hr.salary.rule,name:payroll.hr_rule_taxable
@@ -1690,7 +1690,7 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_tree
 #, python-format
 msgid "Payslips"
-msgstr "Obračunski listići"
+msgstr "Platne liste"
 
 #. module: payroll
 #: model:ir.actions.act_window,name:payroll.hr_payslip_run_action
@@ -1698,7 +1698,7 @@ msgstr "Obračunski listići"
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_form
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_tree
 msgid "Payslips Batches"
-msgstr "Skupne platne liste"
+msgstr "Platne liste grupno"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.view_hr_payslip_by_employees
@@ -1733,7 +1733,7 @@ msgstr "Period"
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.res_config_settings_view_form
 msgid "Post payroll slips in accounting"
-msgstr "Proknjiži listiće obračuna plate u računovodstvo"
+msgstr "Proknjiži obračun"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.view_payslip_lines_contribution_register
@@ -2029,7 +2029,7 @@ msgstr "Sekvenca"
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_run_view_form
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_view_form
 msgid "Set to Draft"
-msgstr "Postavi u pripremu"
+msgstr "Vrati u pripremu"
 
 #. module: payroll
 #: model:ir.actions.act_window,name:payroll.payroll_configuration_action
@@ -2284,19 +2284,19 @@ msgstr "Ne možete izbrisati platnu listu koja nije 'draft' ili 'odbijena'"
 #, python-format
 msgid "You must select employee(s) to generate payslip(s)."
 msgstr ""
-"Morate odabrati jednog ili više zaposlenika da generišete platne listiće."
+"Morate odabrati jednog ili više zaposlenika za generaciju plata."
 
 #. module: payroll
 #: code:addons/payroll/models/hr_payslip_line.py:0
 #, python-format
 msgid "You must set a contract to create a payslip line."
-msgstr "Morate odabrati ugovor da bi ste obračunali stavku plantog listića."
+msgstr "Morate odabrati ugovor da bi ste izvršili obračun."
 
 #. module: payroll
 #: model:ir.model.fields,help:payroll.field_hr_payslip_line__amount_percentage_base
 #: model:ir.model.fields,help:payroll.field_hr_salary_rule__amount_percentage_base
 msgid "result will be affected to a variable"
-msgstr "pravilo će utjecati na varijablu"
+msgstr "pravilo će utiecati na varijablu"
 
 #. module: payroll
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_line_view_form

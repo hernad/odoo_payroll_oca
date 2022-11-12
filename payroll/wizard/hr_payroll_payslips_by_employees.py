@@ -1,7 +1,7 @@
 from odoo import _, fields, models
 from odoo.exceptions import UserError
 
-
+# batch payslip processing
 class HrPayslipEmployees(models.TransientModel):
     _name = "hr.payslip.employees"
     _description = "Generate payslips for all selected employees"

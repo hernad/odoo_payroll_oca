@@ -343,6 +343,9 @@ class HrPayslip(models.Model):
             attendances = self._compute_worked_days(contract, day_from, day_to)
             res.append(attendances)
 
+            full_month_att = self._compute_full_month_worked_days(contract, day_from, day_to)
+            res.append(full_month_att)
+
             # == compute timesheet hours-days == #
             timesheets = self._compute_timesheet_hours(contract, day_from, day_to)
             for timesheet in timesheets:
@@ -426,6 +429,8 @@ class HrPayslip(models.Model):
             compute_leaves=False,
             domain=None,
         )
+
+
         #import pdb; pdb.set_trace()
 
         #if self.employee_id.id:
@@ -434,13 +439,35 @@ class HrPayslip(models.Model):
         work_data_item = list(work_data.items())[0][1]
 
         return {
-            "name": _("Normal Working Days paid at 100%"),
-            "sequence": 1,
-            "code": "WORK100",
-            "number_of_days": work_data_item["days"],
-            "number_of_hours": work_data_item["hours"],
+                "name": _("Normal Working Days paid at 100%"),
+                "sequence": 1,
+                "code": "WORK100",
+                "number_of_days": work_data_item["days"],
+                "number_of_hours": work_data_item["hours"],
+                "contract_id": contract.id,
+            }
+
+    def _compute_full_month_worked_days(self, contract, day_from, day_to):
+
+        # full worked hours for this month
+        #self.env.company.resource_calendar_id.get_work_hours_count(
+        # datetime.strptime('2022-11-1', '%Y-%m-%d'), datetime.strptime('2022-11-30', '%Y-%m-%d')) / 8
+
+        # if contract ends before there is difference we need to know in payroll calculations
+        day_from = day_from + relativedelta(months=-1, day=1)  # month-1, first in month
+        day_from = day_from + relativedelta(months=+1) # back to month, first in month
+
+        day_to = day_to + relativedelta(months=+1, day=1, days=-1)
+        full_hours = self.env.company.resource_calendar_id.get_work_hours_count(day_from, day_to)
+        return {
+            "name": _("Full month working days"),
+            "sequence": 2,
+            "code": "FWORK100",
+            "number_of_days": full_hours / 8,
+            "number_of_hours": full_hours,
             "contract_id": contract.id,
         }
+
 
 
     def _compute_timesheet_hours(self, contract, date_from, date_to):
@@ -612,6 +639,7 @@ class HrPayslip(models.Model):
         sorted_rules = self.env["hr.salary.rule"].browse(sorted_rule_ids)
         return sorted_rules
 
+
     def _compute_payslip_line(self, rule, localdict, lines_dict):
         self.ensure_one()
         # check if there is already a rule computed with that code
@@ -720,6 +748,7 @@ class HrPayslip(models.Model):
         if (not employee_id) or (not date_from) or (not date_to):
             return res
         # We check if contract_id is present, if not we fill with the
+        # ------------ hernad: bug samo jedan contract se uzima !!!!!!!!!!!!!!!!!!!!!!!!!--------------------------
         # first contract of the employee. If not contract present, we return.
         if not self.env.context.get("contract"):
             contract_ids = employee.contract_id.ids
@@ -808,6 +837,7 @@ class HrPayslip(models.Model):
             contract_ids = self._get_employee_contracts().ids
             if not contract_ids:
                 return
+            # if there are more contracts - take only first, bug!?
             self.contract_id = self.env["hr.contract"].browse(contract_ids[0])
         # Assign struct_id automatically when the user don't selected one.
         if not self.struct_id and not self.env.context.get("struct_id"):

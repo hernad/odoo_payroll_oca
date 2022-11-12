@@ -23,10 +23,11 @@
                     </span>
                 </group>
                 <group colspan="4">
-                    <separator string="Employees" colspan="4" />
-                    <newline />
-                    <field name="employee_ids" nolabel="1" />
                 </group>
+                <separator string="Employees" colspan="4" />
+                <newline />
+                <field name="employee_ids" nolabel="1" />
+
             </form>
         </field>
     </record>

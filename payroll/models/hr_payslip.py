@@ -489,14 +489,17 @@ class HrPayslip(models.Model):
         # get timesheets for employee
         employee_id = contract.employee_id
 
+        work_type_object = env['hr.timesheet.work_type']
+        work_types = work_type_object.search([])
+
         timesheet_data = []
-        for work_type in ('standard', 'night', 'terrain'):
+        for work_type in work_types:
             analytic_line_object = env['account.analytic.line']
             lines = analytic_line_object.search([
                 ('employee_id', '=', employee_id.id),
                 ('date', '>=', date_from),
                 ('date', '<=', date_to),
-                ('work_type', '=', work_type),
+                ('work_type_id', '=', work_type.id),
                 ('global_leave_id', '=', False),
                 ('holiday_id', '=', False)
             ])
@@ -507,9 +510,9 @@ class HrPayslip(models.Model):
                 timesheet_hours += line.unit_amount
             if timesheet_hours > 0:
                 timesheet_data.append({
-                    "name": _("Timesheet data " + work_type),
+                    "name": _(work_type.name),
                     "sequence": 10,
-                    "code": "TSH_" + work_type.upper(),
+                    "code": "TSH_" + work_type.code.upper(),
                     "number_of_hours": timesheet_hours,
                     "number_of_days": timesheet_hours / 8,
                     "contract_id": contract,

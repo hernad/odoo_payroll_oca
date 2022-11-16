@@ -173,6 +173,12 @@ class HrPayslip(models.Model):
         "Allow Cancel Payslips", compute="_compute_allow_cancel_payslips"
     )
 
+    @api.constrains('contract_id')
+    def validate_contract_id(self):
+        for record in self:
+            if not record.contract_id:
+                raise ValidateError(_("Please set contract for payslip!"))
+
     def _compute_allow_cancel_payslips(self):
         self.allow_cancel_payslips = (
             self.env["ir.config_parameter"]
@@ -472,16 +478,7 @@ class HrPayslip(models.Model):
 
 
     def _compute_timesheet_hours(self, contract, date_from, date_to):
-        """
-        original author: Cybrosys Techno Solutions, LGPL-3
-        https://apps.odoo.com/apps/modules/10.0/payroll_timesheet/
 
-        Function which computes total hours, timesheethours, attendances, timehseet difference,
-        :param employee_id:
-        :param date_from:
-        :param date_to:
-        :return:  computed total timesheet hours within duration, total hours by working schedule
-        """
         if not contract:
             return {}
         env = self.env
@@ -504,10 +501,13 @@ class HrPayslip(models.Model):
                 ('holiday_id', '=', False)
             ])
             timesheet_hours = 0.0
+            timesheet_item_ids = []
             for line in lines:
                 # TODO: use product_uom_id
                 # TODO: day = timesheet_hours / 8?  use _get_work_hours?
                 timesheet_hours += line.unit_amount
+                timesheet_item_ids.append(line.id)
+
             if timesheet_hours > 0:
                 timesheet_data.append({
                     "name": _(work_type.name),
@@ -516,6 +516,8 @@ class HrPayslip(models.Model):
                     "number_of_hours": timesheet_hours,
                     "number_of_days": timesheet_hours / 8,
                     "contract_id": contract,
+                    # https://www.odoo.com/forum/help-1/overwrite-write-method-many2many-102545
+                    "timesheet_item_ids": [(6, 0, timesheet_item_ids)]
                 })
 
         return timesheet_data

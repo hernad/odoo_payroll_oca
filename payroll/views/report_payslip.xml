@@ -85,7 +85,7 @@
                                     <t t-set="payslip_contracts" t-value="payslip_contracts + [l.contract_id]"/>
                                 </t>
 
-                                <t t-foreach="set(payslip_contracts)" t-as="contract">
+                                <t t-foreach="sorted(set(payslip_contracts), key=lambda contr: contr.date_start)" t-as="contract">
                                     <div class="row mt32 mb32">
                                        <strong t-esc="'== UGOVOR: ' + contract.name + ' == '"/>
                                        <span t-field="contract.date_start" /> - <span t-field="contract.date_end" />

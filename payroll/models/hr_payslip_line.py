@@ -1,18 +1,18 @@
 # Part of Odoo. See LICENSE file for full copyright and licensing details.
 
 from odoo import _, api, fields, models
-from odoo.exceptions import UserError
-
+from odoo.exceptions import UserError, ValidationError
 
 class HrPayslipLine(models.Model):
     _name = "hr.payslip.line"
     _inherit = "hr.salary.rule"
     _description = "Payslip Line"
-    _order = "contract_id, sequence"
+    _order = "contract_date_start, contract_id, sequence"
 
     slip_id = fields.Many2one(
         "hr.payslip", string="Pay Slip", required=True, ondelete="cascade"
     )
+
     date_from = fields.Date("Date From", related="slip_id.date_from", store=True)
     payslip_run_id = fields.Many2one(
         "hr.payslip.run", related="slip_id.payslip_run_id", string="Payslip Batch"
@@ -31,6 +31,8 @@ class HrPayslipLine(models.Model):
     contract_id = fields.Many2one(
         "hr.contract", string="Contract", required=True, index=True
     )
+    contract_date_start = fields.Date("Contract Date Start", related="contract_id.date_start", index=True, store=True)
+
     rate = fields.Float(string="Rate (%)", digits="Payroll Rate", default=100.0)
     amount = fields.Float(digits="Payroll")
     quantity = fields.Float(digits="Payroll", default=1.0)
@@ -40,6 +42,20 @@ class HrPayslipLine(models.Model):
         digits="Payroll",
         store=True,
     )
+
+    @api.model
+    def search(self, args, offset=0, limit=None, order=None, count=False):
+        return super(HrPayslipLine, self).search(args, offset=offset, limit=limit, order=order, count=count)
+
+    @api.constrains('contract_id')
+    def validate_contract_id(self):
+        for record in self:
+            if not record.contract_id:
+               raise ValidateError(_("Please set contract for payslip!"))
+    def validate_rounding(self):
+        for record in self:
+            if record.rounding <= 0:
+                raise ValidationError(_("Please set a strictly positive rounding value."))
 
     @api.depends("parent_rule_id", "contract_id", "slip_id")
     def _compute_parent_line_id(self):

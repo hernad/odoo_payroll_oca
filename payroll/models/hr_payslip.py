@@ -142,6 +142,11 @@ class HrPayslip(models.Model):
         compute="_compute_details_by_salary_rule_category",
         string="Details by Salary Rule Category",
     )
+    details_by_salary_rule_category_all = fields.One2many(
+        "hr.payslip.line",
+        compute="_compute_details_by_salary_rule_category_all",
+        string="Details by Salary Rule Category All",
+    )
     dynamic_filtered_payslip_lines = fields.One2many(
         "hr.payslip.line",
         compute="_compute_dynamic_filtered_payslip_lines",
@@ -173,11 +178,11 @@ class HrPayslip(models.Model):
         "Allow Cancel Payslips", compute="_compute_allow_cancel_payslips"
     )
 
-    @api.constrains('contract_id')
-    def validate_contract_id(self):
-        for record in self:
-            if not record.contract_id:
-                raise ValidateError(_("Please set contract for payslip!"))
+    #@api.constrains('contract_id')
+    #def validate_contract_id(self):
+    #    for record in self:
+    #        if not record.contract_id:
+    #            raise ValidateError(_("Please set contract for payslip!"))
 
     def _compute_allow_cancel_payslips(self):
         self.allow_cancel_payslips = (
@@ -202,6 +207,13 @@ class HrPayslip(models.Model):
             payslip.details_by_salary_rule_category = payslip.mapped(
                 "line_ids"
             ).filtered(lambda line: line.category_id and line.appears_on_payslip)
+
+    @api.depends("line_ids")
+    def _compute_details_by_salary_rule_category_all(self):
+        for payslip in self:
+            payslip.details_by_salary_rule_category_all = payslip.mapped(
+                "line_ids"
+            ).filtered(lambda line: line.category_id)
 
     def _compute_payslip_count(self):
         for payslip in self:
@@ -344,20 +356,36 @@ class HrPayslip(models.Model):
                 day_from = day_contract_start
             if day_to > day_contract_end:
                 day_to = day_contract_end
-            # == compute leave days == #
-            leaves = self._compute_leave_days(contract, day_from, day_to)
-            res.extend(leaves)
-            # == compute worked days == #
-            attendances = self._compute_worked_days(contract, day_from, day_to)
-            res.append(attendances)
 
+            # if contract < end of month, full month > worked days: FWORK100
             full_month_att = self._compute_full_month_worked_days(contract, day_from, day_to)
             res.append(full_month_att)
 
+            # == compute worked days: WORK100
+            attendances = self._compute_worked_days(contract, day_from, day_to)
+            res.append(attendances)
+            hours_fond = attendances["number_of_hours"]
+
+            # == compute leave days == #
+            leaves = self._compute_leave_days(contract, day_from, day_to)
+            for leave in leaves:
+                hours_fond -= abs(leave["number_of_hours"])
+            #  extend() method adds multiple items.
+            res.extend(leaves)
+
             # == compute timesheet hours-days == #
-            timesheets = self._compute_timesheet_hours(contract, day_from, day_to)
+            timesheets = self._compute_timesheet_hours(hours_fond, contract, day_to)
             for timesheet in timesheets:
-                res.append(timesheet)
+                if timesheet["code"] != "FOOD":
+                    hours_fond -= timesheet["number_of_hours"]
+            res.extend(timesheets)
+
+            # hours fond is not completely spent
+            if hours_fond > 0:
+                rest_time = self._generate_rest(contract, hours_fond)
+                res.append(rest_time)
+
+
         return res
 
     def _compute_leave_days(self, contract, day_from, day_to):
@@ -477,7 +505,7 @@ class HrPayslip(models.Model):
 
 
 
-    def _compute_timesheet_hours(self, contract, date_from, date_to):
+    def _compute_timesheet_hours(self, hours_to_spend, contract, date_to):
 
         if not contract:
             return {}
@@ -490,38 +518,68 @@ class HrPayslip(models.Model):
         work_types = work_type_object.search([])
 
         timesheet_data = []
+        food_included_days = 0
+        timesheet_hours = {}
+        # initialize timesheet_hours dict
         for work_type in work_types:
-            analytic_line_object = env['account.analytic.line']
-            lines = analytic_line_object.search([
-                ('employee_id', '=', employee_id.id),
-                ('date', '>=', date_from),
-                ('date', '<=', date_to),
-                ('work_type_id', '=', work_type.id),
-                ('global_leave_id', '=', False),
-                ('holiday_id', '=', False)
-            ])
-            timesheet_hours = 0.0
-            timesheet_item_ids = []
-            for line in lines:
-                # TODO: use product_uom_id
-                # TODO: day = timesheet_hours / 8?  use _get_work_hours?
-                timesheet_hours += line.unit_amount
+            timesheet_hours[work_type.code] = 0
+
+        analytic_line_object = env['account.analytic.line']
+        lines = analytic_line_object.search([
+            ('employee_id', '=', employee_id.id),
+            # ('date', '>=', date_from),
+            ('date', '<=', date_to),
+            ('work_type_id', '!=', False),
+            ('global_leave_id', '=', False),
+            ('holiday_id', '=', False),
+            # timesheet not spent (False) or this worked_days_ids exist in current worked_days_line_ids
+            '|', ('worked_days_ids', '=', False),
+                 ('worked_days_ids', 'in', [line.id for line in self.worked_days_line_ids])
+        ], order="date desc")
+        timesheet_item_ids = []
+        for line in lines:
+            # TODO: use product_uom_id
+            # TODO: day = timesheet_hours / 8?  use _get_work_hours?
+            if hours_to_spend >= line.unit_amount:
+                # this timesheet item has food included
+                if line.work_type_id.food_included:
+                    food_included_days += 1
+                timesheet_hours[line.work_type_id.code] += line.unit_amount
+                hours_to_spend -= line.unit_amount
                 timesheet_item_ids.append(line.id)
 
-            if timesheet_hours > 0:
+        for work_type in work_types:
+            if timesheet_hours[work_type.code] > 0:
                 timesheet_data.append({
                     "name": _(work_type.name),
-                    "sequence": 10,
+                    "sequence": 90,
                     "code": "TSH_" + work_type.code.upper(),
-                    "number_of_hours": timesheet_hours,
-                    "number_of_days": timesheet_hours / 8,
+                    "number_of_hours": timesheet_hours[work_type.code],
+                    "number_of_days": timesheet_hours[work_type.code] / 8,
                     "contract_id": contract,
                     # https://www.odoo.com/forum/help-1/overwrite-write-method-many2many-102545
                     "timesheet_item_ids": [(6, 0, timesheet_item_ids)]
                 })
 
+        timesheet_data.append({
+            "name": _("Food included"),
+            "code": "FOOD",
+            "sequence": 100,
+            "number_of_days": food_included_days,
+            "number_of_hours": food_included_days * 8,
+            "contract_id": contract
+        })
         return timesheet_data
 
+    def _generate_rest(self, contract, rest_hours):
+        return {
+            "name": _("Rest time"),
+            "sequence": 200,
+            "code": "REST",
+            "number_of_hours": rest_hours,
+            "number_of_days": rest_hours / 8,
+            "contract_id": contract,
+        }
     @api.model
     def get_inputs(self, contracts, date_from, date_to):
         # TODO: We leave date_from and date_to params here for backwards
@@ -835,6 +893,8 @@ class HrPayslip(models.Model):
     def onchange_dates(self):
         if not self.date_from or not self.date_to:
             return
+        #self.worked_days_line_ids[5].id = 103
+        #self.worked_days_line_ids[5].timesheet_item_ids[0].worked_days_ids[0].id = 103
         worked_days_lines = self.worked_days_line_ids.browse([])
         worked_days_line_ids = self.get_worked_day_lines(
             self._get_employee_contracts(), self.date_from, self.date_to
@@ -896,3 +956,5 @@ class HrPayslip(models.Model):
             return line[0].total
         else:
             return 0.0
+
+

@@ -2169,3 +2169,21 @@ msgstr ""
 #: model_terms:ir.ui.view,arch_db:payroll.hr_payslip_line_view_form
 msgid "total_net"
 msgstr ""
+
+#. module: payroll
+#: code:addons/payroll/models/hr_payslip.py:0
+#, python-format
+msgid "Food included"
+msgstr ""
+
+#. module: payroll
+#: code:addons/payroll/models/hr_payslip.py:0
+#, python-format
+msgid "Rest time"
+msgstr ""
+
+#. module: payroll
+#: code:addons/payroll/models/hr_payslip.py:0
+#, python-format
+msgid "Full month working days"
+msgstr ""

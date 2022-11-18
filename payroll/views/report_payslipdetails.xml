@@ -90,19 +90,30 @@
                                     t-foreach="get_details_by_rule_category.get(o.id, [])"
                                     t-as="h"
                                 >
-                                    <td>
-                                        <span t-esc="h['code']" />
+                                   <t t-if="h['level']>0">
+                                      <t t-set="style" t-value="'font-size:small;padding-left:15px;'" />
+                                      <t t-set="tstyle" t-value="'background-color:white;'" />
+                                   </t>
+                                   <t t-if="h['level']==0">
+                                      <t t-set="style" t-value="'font-weight:bold;'" />
+                                      <t t-set="tstyle" t-value="'background-color:lightgray;'" />
+                                   </t>
+
+                                    <td t-att-style="tstyle">
+                                        <span t-att-style="style" t-esc="h['code']" />
                                     </td>
-                                    <td>
-                                        <span t-esc="'..'*h['level']" />
-                                        <span t-esc="h['rule_category']" />
+                                    <td t-att-style="tstyle">
+                                        <span t-att-style="style" t-esc="'..'*h['level']" />
+                                        <span t-att-style="style" t-esc="h['rule_category']" />
                                     </td>
-                                    <td class="text-end">
+                                    <td class="text-end" t-att-style="tstyle">
                                         <span
-                                            t-esc="h['total']"
+                                            t-att-style="style"
+                                            t-esc="round(h['total'],2)"
                                             t-esc-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'
                                         />
                                     </td>
+
                                 </tr>
                             </tbody>
                         </table>
@@ -122,19 +133,25 @@
                                     t-foreach="get_lines_by_contribution_register.get(o.id, [])"
                                     t-as="p"
                                 >
-                                    <td>
+                                    <t t-if="(p.get('name',''))[0:3]=='==='">
+                                        <t t-set="style" t-value="'background-color:lightgray;'" />
+                                    </t>
+                                    <t t-if="(p.get('name',''))[0:3]!='==='">
+                                        <t t-set="style" t-value="'background-color:white;'" />
+                                    </t>
+                                    <td t-att-style="style">
                                         <span t-esc="p.get('code', '')" />
                                     </td>
-                                    <td>
+                                    <td t-att-style="style">
                                         <span t-esc="p.get('name', '')" />
                                     </td>
-                                    <td class="text-end">
+                                    <td class="text-end" t-att-style="style">
                                         <span t-esc="show_rate_or_quantity(p.get('rate', 0), p.get('quantity', 0))" />
                                     </td>
-                                    <td class="text-end">
+                                    <td class="text-end" t-att-style="style">
                                         <span t-esc="p.get('amount',0) if p.get('amount',0) != 0 else ''" />
                                     </td>
-                                    <td class="text-end">
+                                    <td class="text-end" t-att-style="style">
                                         <span
                                             t-esc="p.get('total', 0)"
                                             t-esc-options='{"widget": "monetary", "display_currency": o.company_id.currency_id}'

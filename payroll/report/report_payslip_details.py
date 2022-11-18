@@ -131,9 +131,13 @@ class PayslipDetailsReport(models.AbstractModel):
             "docs": payslips,
             "data": data,
             "get_details_by_rule_category": self.get_details_by_rule_category(
-                payslips.mapped("details_by_salary_rule_category").filtered(
-                    lambda r: r.appears_on_payslip
-                )
+                # show regardless of appears_on_payslip attribute
+                # calculated field details_by_salary_rule_category_all
+                # '_all' - ignores appears_on_payslip
+                payslips.mapped("details_by_salary_rule_category_all")
+                #.filtered(
+                #    lambda r: r.appears_on_payslip
+                #)
             ),
             "get_lines_by_contribution_register": self.get_lines_by_contribution_register(  # noqa: disable=B950
                 payslips.mapped("line_ids").filtered(lambda line: line.quantity != 0)

@@ -43,15 +43,16 @@ class HrPayslipLine(models.Model):
         store=True,
     )
 
-    @api.model
-    def search(self, args, offset=0, limit=None, order=None, count=False):
-        return super(HrPayslipLine, self).search(args, offset=offset, limit=limit, order=order, count=count)
+    #@api.model
+    #def search(self, args, offset=0, limit=None, order=None, count=False):
+    #    return super(HrPayslipLine, self).search(args, offset=offset, limit=limit, order=order, count=count)
 
-    @api.constrains('contract_id')
-    def validate_contract_id(self):
-        for record in self:
-            if not record.contract_id:
-               raise ValidateError(_("Please set contract for payslip!"))
+    #@api.constrains('contract_id')
+    #def validate_contract_id(self):
+    #    for record in self:
+    #        if not record.contract_id:
+    #           raise ValidateError(_("Please set contract for payslip!"))
+
     def validate_rounding(self):
         for record in self:
             if record.rounding <= 0:

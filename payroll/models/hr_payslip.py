@@ -545,7 +545,10 @@ class HrPayslip(models.Model):
                 if line.work_type_id.food_included:
                     food_included_days += 1
                 timesheet_hours[line.work_type_id.code] += line.unit_amount
-                hours_to_spend -= line.unit_amount
+                # work on holiday is not included in monthly hours fond,
+                # so work_type.hours_fond_included = False
+                if line.work_type_id.hours_fond_included:
+                    hours_to_spend -= line.unit_amount
                 timesheet_item_ids.append(line.id)
 
         for work_type in work_types:

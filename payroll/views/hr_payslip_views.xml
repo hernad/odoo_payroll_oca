@@ -169,16 +169,20 @@
                                 options="{'related_start_date': 'date_from'}"
                             />
                         </div>
+                        <!--
                         <field
                             name="contract_id"
                             domain="[('employee_id','=',employee_id),('date_start','&lt;=',date_to),'|',('date_end','&gt;=',date_from),('date_end','=',False)]"
                             context="{'default_employee_id': employee_id}"
                         />
+                        -->
                         <field name="number" />
+                        <!--
                         <field
                             name="struct_id"
                             attrs="{'required':[('contract_id','!=',False)]}"
                         />
+                        -->
                         <field name="name" />
                         <field name="credit_note" />
                         <field
@@ -350,7 +354,9 @@
                     filter_domain="['|',('name','ilike',self),('number','ilike',self)]"
                 />
                 <field name="date_from" />
+                <!--
                 <field name="contract_id" />
+                -->
                 <field name="payslip_run_id" />
                 <filter
                     string="Draft"

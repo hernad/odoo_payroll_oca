@@ -25,17 +25,18 @@ class HrPayslip(models.Model):
     _description = "Payslip"
     _order = "id desc"
 
-    struct_id = fields.Many2one(
-        "hr.payroll.structure",
-        string="Structure",
-        readonly=True,
-        states={"draft": [("readonly", False)]},
-        help="Defines the rules that have to be applied to this payslip, "
-        "accordingly to the contract chosen. If you let empty the field "
-        "contract, this field isn't mandatory anymore and thus the rules "
-        "applied will be all the rules set on the structure of all contracts "
-        "of the employee valid for the chosen period",
-    )
+    #struct_id = fields.Many2one(
+    #    "hr.payroll.structure",
+    #    string="Structure",
+    #    readonly=True,
+    #    states={"draft": [("readonly", False)]},
+    #    help="Defines the rules that have to be applied to this payslip, "
+    #    "accordingly to the contract chosen. If you let empty the field "
+    #    "contract, this field isn't mandatory anymore and thus the rules "
+    #    "applied will be all the rules set on the structure of all contracts "
+    #    "of the employee valid for the chosen period",
+    #)
+
     name = fields.Char(
         string="Payslip Name", readonly=True, states={"draft": [("readonly", False)]}
     )
@@ -130,13 +131,13 @@ class HrPayslip(models.Model):
         states={"draft": [("readonly", False)]},
         tracking=True,
     )
-    contract_id = fields.Many2one(
-        "hr.contract",
-        string="Contract",
-        readonly=True,
-        tracking=True,
-        states={"draft": [("readonly", False)]},
-    )
+    #contract_id = fields.Many2one(
+    #    "hr.contract",
+    #    string="Contract",
+    #    readonly=True,
+    #    tracking=True,
+    #    states={"draft": [("readonly", False)]},
+    #)
     details_by_salary_rule_category = fields.One2many(
         "hr.payslip.line",
         compute="_compute_details_by_salary_rule_category",
@@ -570,7 +571,7 @@ class HrPayslip(models.Model):
             "sequence": 100,
             "number_of_days": food_included_days,
             "number_of_hours": food_included_days * 8,
-            "contract_id": contract
+            "contract_id": contract.id
         })
         return timesheet_data
 
@@ -581,7 +582,7 @@ class HrPayslip(models.Model):
             "code": "REST",
             "number_of_hours": rest_hours,
             "number_of_days": rest_hours / 8,
-            "contract_id": contract,
+            "contract_id": contract.id,
         }
     @api.model
     def get_inputs(self, contracts, date_from, date_to):
@@ -595,10 +596,10 @@ class HrPayslip(models.Model):
         associated rules for the given contracts.
         """
         res = []
-        current_structure = self.struct_id
+        #current_structure = self.struct_id
         structure_ids = contracts.get_all_structures()
-        if current_structure:
-            structure_ids = list(set(current_structure._get_parent_structure().ids))
+        #if current_structure:
+        #    structure_ids = list(set(current_structure._get_parent_structure().ids))
         rule_ids = (
             self.env["hr.payroll.structure"].browse(structure_ids).get_all_rules()
         )
@@ -697,7 +698,7 @@ class HrPayslip(models.Model):
         }
         return localdict
 
-    def _get_salary_rules(self, contract ): #, payslip):
+    def _get_salary_rules(self, contract): #, payslip):
         #if len(contracts) == 1 and payslip.struct_id:
         #    structure_ids = list(set(payslip.struct_id._get_parent_structure().ids))
         #else:
@@ -806,19 +807,20 @@ class HrPayslip(models.Model):
         return localdict
 
     def get_payslip_vals(
-        self, date_from, date_to, employee_id=False, contract_id=False, struct_id=False
+        self, date_from, date_to, employee_id=False  #, contract_ids=False, struct_id=False
     ):
         # Initial default values for generated payslips
         employee = self.env["hr.employee"].browse(employee_id)
+        #res = {
+        #    "value": {
+        #        "line_ids": [],
+        #        "input_line_ids": [(2, x) for x in self.input_line_ids.ids],
+        #        "worked_days_line_ids": [(2, x) for x in self.worked_days_line_ids.ids],
+        #        "name": "",
+        #    }
+        #}
         res = {
-            "value": {
-                "line_ids": [],
-                "input_line_ids": [(2, x) for x in self.input_line_ids.ids],
-                "worked_days_line_ids": [(2, x) for x in self.worked_days_line_ids.ids],
-                "name": "",
-                "contract_id": False,
-                "struct_id": False,
-            }
+            "value": {}
         }
         # If we don't have employee or date data, we return.
         if (not employee_id) or (not date_from) or (not date_to):
@@ -853,12 +855,23 @@ class HrPayslip(models.Model):
         contracts = self.env["hr.contract"].browse(contract_ids)
         worked_days_line_ids = self.get_worked_day_lines(contracts, date_from, date_to)
         input_line_ids = self.get_inputs(contracts, date_from, date_to)
-        res["value"].update(
-            {
-                "worked_days_line_ids": worked_days_line_ids,
-                "input_line_ids": input_line_ids,
+        #res["value"].update(
+        #    {
+        #        #"contract_ids": contract_ids,
+        #        "worked_days_line_ids": worked_days_line_ids,
+        #        "input_line_ids": input_line_ids,
+        #    }
+        #)
+
+        res = {
+            "value": {
+                "line_ids": [],
+                "input_line_ids": [(2, x) for x in self.input_line_ids.ids],
+                "worked_days_line_ids": [(2, x) for x in self.worked_days_line_ids.ids],
+                "name": "",
             }
-        )
+        }
+
         return res
 
     def _sum_salary_rule_category(self, localdict, category, amount):
@@ -879,18 +892,18 @@ class HrPayslip(models.Model):
             ).ids
         )
 
-    @api.onchange("struct_id")
-    def onchange_struct_id(self):
-        if not self.struct_id:
-            self.input_line_ids.unlink()
-            return
-        input_lines = self.input_line_ids.browse([])
-        input_line_ids = self.get_inputs(
-            self._get_employee_contracts(), self.date_from, self.date_to
-        )
-        for r in input_line_ids:
-            input_lines += input_lines.new(r)
-        self.input_line_ids = input_lines
+    #@api.onchange("struct_id")
+    #def onchange_struct_id(self):
+    #    if not self.struct_id:
+    #        self.input_line_ids.unlink()
+    #        return
+    #    input_lines = self.input_line_ids.browse([])
+    #    input_line_ids = self.get_inputs(
+    #        self._get_employee_contracts(), self.date_from, self.date_to
+    #    )
+    #    for r in input_line_ids:
+    #        input_lines += input_lines.new(r)
+    #    self.input_line_ids = input_lines
 
     @api.onchange("date_from", "date_to")
     def onchange_dates(self):
@@ -917,18 +930,21 @@ class HrPayslip(models.Model):
             if not contract_ids:
                 return
             # if there are more contracts - take only first, bug!?
-            self.contract_id = self.env["hr.contract"].browse(contract_ids[0])
+            #self.contract_id = self.env["hr.contract"].browse(contract_ids[0])
         # Assign struct_id automatically when the user don't selected one.
-        if not self.struct_id and not self.env.context.get("struct_id"):
-            if not self.contract_id.struct_id:
-                return
-            self.struct_id = self.contract_id.struct_id
+        #if not self.struct_id and not self.env.context.get("struct_id"):
+        #    if not self.contract_id.struct_id:
+        #        return
+        #    self.struct_id = self.contract_id.struct_id
+
         # Compute payslip name
         self._compute_name()
         # Call worked_days_lines computation when employee is changed.
         self.onchange_dates()
+
         # Call input_lines computation when employee is changed.
-        self.onchange_struct_id()
+        #self.onchange_struct_id()
+
         # Assign company_id automatically based on employee selected.
         self.company_id = self.employee_id.company_id
 
@@ -945,12 +961,12 @@ class HrPayslip(models.Model):
                 ),
             )
 
-    @api.onchange("contract_id")
-    def onchange_contract(self):
-        if not self.contract_id:
-            self.struct_id = False
-        self.with_context(contract=True).onchange_employee()
-        return
+    #@api.onchange("contract_id")
+    #def onchange_contract(self):
+    #    if not self.contract_id:
+    #        self.struct_id = False
+    #    self.with_context(contract=True).onchange_employee()
+    #    return
 
     def get_salary_line_total(self, code):
         self.ensure_one()

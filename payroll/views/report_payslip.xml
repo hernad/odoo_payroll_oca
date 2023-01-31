@@ -16,7 +16,7 @@
                                     <span t-field="o.employee_id" />
                                 </td>
                                 <td>
-                                    <strong>Designation</strong>
+                                    <strong>Radno mjesto</strong>
                                 </td>
                                 <td>
                                     <span t-field="o.employee_id.job_id" />
@@ -61,6 +61,7 @@
                                 <td>
                                     <span t-field="o.employee_id.bank_account_id" />
                                 </td>
+
                             </tr>
                             <tr>
                                 <td>
@@ -86,10 +87,40 @@
                                 </t>
 
                                 <t t-foreach="sorted(set(payslip_contracts), key=lambda contr: contr.date_start)" t-as="contract">
+                                    <!--
                                     <div class="row mt32 mb32">
                                        <strong t-esc="'== UGOVOR: ' + contract.name + ' == '"/>
                                        <span t-field="contract.date_start" /> - <span t-field="contract.date_end" />
                                     </div>
+                                    -->
+                                    <table class="table table-sm table-bordered">
+                                        <tr>
+                                            <td>
+                                                <strong>Ugovor</strong>
+                                            </td>
+                                            <td>
+                                                <span t-field="contract.name" />
+                                            </td>
+                                            <td>
+                                                <strong>Od:</strong>
+                                            </td>
+                                            <td>
+                                                <span t-field="contract.date_start" />
+                                            </td>
+                                            <td>
+                                                <strong>Do:</strong>
+                                            </td>
+                                            <td>
+                                                <span t-field="contract.date_end" />
+                                            </td>
+                                            <td>
+                                                <strong>Broj bodova</strong>
+                                            </td>
+                                            <td>
+                                                <span t-field="contract.br_bod" />
+                                            </td>
+                                        </tr>
+                                    </table>
                                     <table class="table table-sm">
                                         <thead>
                                             <tr>

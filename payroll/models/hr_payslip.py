@@ -377,7 +377,8 @@ class HrPayslip(models.Model):
             # == compute timesheet hours-days == #
             timesheets = self._compute_timesheet_hours(hours_fond, contract, day_to)
             for timesheet in timesheets:
-                if timesheet["code"] != "FOOD":
+                # timesheet["number_of_days"] == 0 for work on holiday
+                if timesheet["code"] != "FOOD" and timesheet["number_of_days"] != 0:
                     hours_fond -= timesheet["number_of_hours"]
             res.extend(timesheets)
 
@@ -420,8 +421,8 @@ class HrPayslip(models.Model):
 
             code = None
             if holiday:
-                code = holiday.holiday_status_id.name.replace(' ', '_').upper().replace('Č', 'C').replace('Ć','C')
-                for d, e in [('Č', 'C'), ('Ć', 'C'), ('Ž', 'Z'), ('Đ', 'DJ')]:
+                code = holiday.holiday_status_id.name.replace(' ', '_').upper()
+                for d, e in [('Č', 'C'), ('Ć', 'C'), ('Ž', 'Z'), ('Đ', 'DJ'), ('Š', 'S')]:
                     code = code.replace(d, e)
 
             current_leave_struct = leaves.setdefault(
@@ -559,7 +560,8 @@ class HrPayslip(models.Model):
                     "sequence": 90,
                     "code": "TSH_" + work_type.code.upper(),
                     "number_of_hours": timesheet_hours[work_type.code],
-                    "number_of_days": timesheet_hours[work_type.code] / 8,
+                    # number_of_days 0, if this work_type is not included in hours fond
+                    "number_of_days": (timesheet_hours[work_type.code] / 8 if work_type.hours_fond_included  else 0),
                     "contract_id": contract,
                     # https://www.odoo.com/forum/help-1/overwrite-write-method-many2many-102545
                     "timesheet_item_ids": [(6, 0, timesheet_item_ids)]

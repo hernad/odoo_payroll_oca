@@ -34,7 +34,7 @@ class HrPayslipLine(models.Model):
     contract_date_start = fields.Date("Contract Date Start", related="contract_id.date_start", index=True, store=True)
 
     rate = fields.Float(string="Rate (%)", digits="Payroll Rate", default=100.0)
-    amount = fields.Float(digits="Payroll")
+    amount = fields.Float(digits="Payroll Amount")
     quantity = fields.Float(digits="Payroll", default=1.0)
     total = fields.Float(
         compute="_compute_total",

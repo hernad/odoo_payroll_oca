@@ -377,6 +377,7 @@ class HrPayslip(models.Model):
             attendances = self._compute_worked_days(contract, day_from, day_to)
             res.append(attendances)
             hours_fond = attendances["number_of_hours"]
+            food_max_days = attendances["number_of_days"]
 
             # INO contracts have no timesheet and leave days
             if not ('INO' in contract.struct_id.code):
@@ -388,7 +389,7 @@ class HrPayslip(models.Model):
                 res.extend(leaves)
 
                 # == compute timesheet hours-days == #
-                timesheets = self._compute_timesheet_hours(hours_fond, contract, day_to)
+                timesheets = self._compute_timesheet_hours(hours_fond, food_max_days, contract, day_to)
                 for timesheet in timesheets:
                     # timesheet["number_of_days"] == 0 for work on holiday
                     if timesheet["code"] != "FOOD" and timesheet["number_of_days"] != 0:
@@ -518,10 +519,8 @@ class HrPayslip(models.Model):
 
 
 
-    def _compute_timesheet_hours(self, hours_to_spend, contract, date_to):
+    def _compute_timesheet_hours(self, hours_to_spend, food_max_days, contract, date_to):
 
-        #if not contract or ('INO' in contract.struct_id.code):
-        #    return {}
         env = self.env
 
         # get timesheets for employee
@@ -538,6 +537,8 @@ class HrPayslip(models.Model):
             timesheet_hours[work_type.code] = 0
 
         analytic_line_object = env['account.analytic.line']
+        # order date desc, code = 10_SF, 11_S, 20_NF, 21_N ...
+        # ovakvim poretkom su za stavke sa istim datumom u vrhu one koje sadrze FOOD (TO) 10_SF ispred 11_S itd
         lines = analytic_line_object.search([
             ('employee_id', '=', employee_id.id),
             # ('date', '>=', date_from),
@@ -549,16 +550,24 @@ class HrPayslip(models.Model):
             # timesheet not spent (False) or this worked_days_ids exist in current worked_days_line_ids
             #'|', ('worked_days_ids', '=', False),
             #     ('worked_days_ids', 'in', [line.id for line in self.worked_days_line_ids])
-        ], order="date desc")
+        ], order="date desc, work_type_code")
 
         timesheet_item_ids = []
         for line in lines:
             if line in self.analytic_line_spent:
                 # already spent
                 continue
+
+            # nothing left to spend
+            if hours_to_spend <= 0:
+                break
+
+            line.split_as_needed(hours_to_spend=hours_to_spend, food_days_rest=(food_max_days - food_included_days))
+
             self.analytic_line_spent.append(line)
             # TODO: use product_uom_id
             # TODO: day = timesheet_hours / 8?  use _get_work_hours?
+
             # ova stavka se moze "potrositi"
             if hours_to_spend >= line.unit_amount:
                 # this timesheet item has food included
@@ -606,7 +615,7 @@ class HrPayslip(models.Model):
             "contract_id": contract.id,
         }
     @api.model
-    def get_rule_inputs(self, contracts, date_from, date_to):
+    def get_inputs(self, contracts, date_from, date_to):
         # TODO: We leave date_from and date_to params here for backwards
         # compatibility reasons for the ones who inherit this function
         # in another modules, but they are not used.
@@ -619,33 +628,28 @@ class HrPayslip(models.Model):
         res = []
         ##izbaceno
         ##current_structure = self.struct_id
-        #structure_ids = contracts.get_all_structures()
+        structure_ids = contracts.get_all_structures()
         ##izbaceno
         ##if current_structure:
         ##    structure_ids = list(set(current_structure._get_parent_structure().ids))
-        #rule_ids = (
-        #    self.env["hr.payroll.structure"].browse(structure_ids).get_all_rules()
-        #)
-        #sorted_rule_ids = [id for id, sequence in sorted(rule_ids, key=lambda x: x[1])]
-        # bring.out: sorted rule ids ne koristimo ovako
-        #payslip_inputs = (
-        #    self.env["hr.salary.rule"].browse(sorted_rule_ids).mapped("input_ids")
-        #)
+        rule_ids = (
+            self.env["hr.payroll.structure"].browse(structure_ids).get_all_rules()
+        )
+        sorted_rule_ids = [id for id, sequence in sorted(rule_ids, key=lambda x: x[1])]
+        payslip_inputs = (
+            self.env["hr.salary.rule"].browse(sorted_rule_ids).mapped("input_ids")
+        )
 
-        #?hernad ne koristimo hr.rule.input
-        #
-        #payslip_inputs = (
-        #    self.env["hr.salary.rule"].browse(sorted_rule_ids).mapped("input_ids")
-        #)
-        #for contract in contracts:
-        #    for payslip_input in payslip_inputs:
-        #        res.append(
-        #            {
-        #                "name": payslip_input.name,
-        #                "code": payslip_input.code,
-        #                "contract_id": contract.id,
-        #            }
-        #        )
+
+        for contract in contracts:
+            for payslip_input in payslip_inputs:
+                res.append(
+                    {
+                        "name": payslip_input.name,
+                        "code": payslip_input.code,
+                        "contract_id": contract.id,
+                    }
+                )
         return res
 
     #def _init_payroll_dict_contracts(self):
@@ -959,11 +963,11 @@ class HrPayslip(models.Model):
         # self.worked_days_lines_ids je db object hr.payslip.worked_days
         self.worked_days_line_ids = worked_days_lines
 
-        #input_lines = self.input_line_ids.browse([])
-        #input_line_ids = self.get_inputs(self._get_employee_contracts(), self.date_from, self.date_to)
-        #for line in input_line_ids:
-        #    input_lines += input_lines.new(line)
-        #self.input_line_ids = input_lines
+        input_lines = self.input_line_ids.browse([])
+        input_line_ids = self.get_inputs(self._get_employee_contracts(), self.date_from, self.date_to)
+        for line in input_line_ids:
+            input_lines += input_lines.new(line)
+        self.input_line_ids = input_lines
 
     @api.onchange("employee_id", "date_from", "date_to")
     def onchange_employee(self):

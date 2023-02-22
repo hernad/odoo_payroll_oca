@@ -464,6 +464,42 @@ class HrPayslip(models.Model):
                     current_leave_struct["number_of_days"] -= hours / work_hours
         return leaves.values()
 
+
+    def get_bol_preko_pos_puna_sat_inputs(self, inputs, contract_ids, date_from, date_to):
+
+        contract_input = None
+        for contract in contract_ids:
+            if not ('INO' in contract.struct_id.code):
+                contract_input = contract
+                break
+
+        if not contract_input:
+            return inputs
+
+        contract_obj = self.env['hr.contract']
+        emp_id = contract_obj.browse(contract_input.id).employee_id
+
+        leave_bolov_preko_id = self.env.ref("l10n_bs_hr_payroll_fuelboss.leave_bolov_preko").id
+        #uzmi ovo iz opisa odsustva preko 42d
+        db_bol_preko_pos_plata_sat = self.env['hr.leave'].search(
+            [
+              ('employee_id', '=', emp_id.id),
+              ('holiday_status_id', '=', leave_bolov_preko_id),
+              ('private_name', 'like', '%POS_PLATA_SAT%'),
+              ('date_to', '>=', date_from)
+            ],
+            limit=1, order='request_date_to desc')
+        for line_pos_plata_sat in db_bol_preko_pos_plata_sat:
+            for input in inputs:
+                if input.get('code') == 'POS_PLATA_SAT':
+                    amnt_str = line_pos_plata_sat.private_name.replace('POS_PLATA_SAT', '')
+                    amnt_str = amnt_str.replace('=','')
+                    # ako je unos 3,35 => 3.35
+                    amnt_str = amnt_str.replace(',', '.')
+                    input['amount_qty'] = 1
+                    input['amount'] = float(amnt_str)
+
+        return inputs
     def _compute_worked_days(self, contract, day_from, day_to):
 
         """
@@ -550,7 +586,7 @@ class HrPayslip(models.Model):
             # timesheet not spent (False) or this worked_days_ids exist in current worked_days_line_ids
             #'|', ('worked_days_ids', '=', False),
             #     ('worked_days_ids', 'in', [line.id for line in self.worked_days_line_ids])
-        ], order="date desc, work_type_code")
+        ], order="date desc")
 
         timesheet_item_ids = []
         for line in lines:
@@ -626,12 +662,7 @@ class HrPayslip(models.Model):
         associated rules for the given contracts.
         """
         res = []
-        ##izbaceno
-        ##current_structure = self.struct_id
         structure_ids = contracts.get_all_structures()
-        ##izbaceno
-        ##if current_structure:
-        ##    structure_ids = list(set(current_structure._get_parent_structure().ids))
         rule_ids = (
             self.env["hr.payroll.structure"].browse(structure_ids).get_all_rules()
         )
@@ -639,7 +670,6 @@ class HrPayslip(models.Model):
         payslip_inputs = (
             self.env["hr.salary.rule"].browse(sorted_rule_ids).mapped("input_ids")
         )
-
 
         for contract in contracts:
             for payslip_input in payslip_inputs:
@@ -846,16 +876,13 @@ class HrPayslip(models.Model):
     ):
         # Initial default values for generated payslips
         employee = self.env["hr.employee"].browse(employee_id)
-        #res = {
-        #    "value": {
-        #        "line_ids": [],
-        #        "input_line_ids": [(2, x) for x in self.input_line_ids.ids],
-        #        "worked_days_line_ids": [(2, x) for x in self.worked_days_line_ids.ids],
-        #        "name": "",
-        #    }
-        #}
         res = {
-            "value": {}
+            "value": {
+                "line_ids": [],
+                "input_line_ids": [(2, x) for x in self.input_line_ids.ids],
+                "worked_days_line_ids": [(2, x) for x in self.worked_days_line_ids.ids],
+                "name": "",
+            }
         }
         # If we don't have employee or date data, we return.
         if (not employee_id) or (not date_from) or (not date_to):
@@ -965,8 +992,12 @@ class HrPayslip(models.Model):
 
         input_lines = self.input_line_ids.browse([])
         input_line_ids = self.get_inputs(self._get_employee_contracts(), self.date_from, self.date_to)
+        input_line_ids = self.get_bol_preko_pos_puna_sat_inputs(input_line_ids, self._get_employee_contracts(), self.date_from, self.date_to)
+
         for line in input_line_ids:
-            input_lines += input_lines.new(line)
+            if 'amount' in line.keys():
+                input_lines += input_lines.new(line)
+
         self.input_line_ids = input_lines
 
     @api.onchange("employee_id", "date_from", "date_to")

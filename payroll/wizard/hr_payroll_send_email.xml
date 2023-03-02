@@ -1,9 +1,9 @@
 <odoo>
     <!-- Mail template are declared in a NOUPDATE block
          so users can freely customize/delete them
-    <data noupdate="1">
     -->
-    <data>
+    <data noupdate="1">
+
         <!-- Email template -->
         <record id="mail_template_hr_payslip" model="mail.template">
             <field name="name">Send payslip by email</field>
@@ -15,9 +15,9 @@
             <field name="body_html" type="html">
     <div style="margin: 0px; padding: 0px;">
         <p style="margin: 0px; padding: 0px; font-size: 13px;">
-            Postovani <span style="font-weight:bold;" t-out="object.employee_id.name or 'NN'" />,
+            Poštovani <span style="font-weight:bold;" t-out="object.employee_id.name or 'NN'" />,
             <br /><br />
-            u prilogu se nalazi obracun plate: <t t-out="object.payslip_run_id.name or 'PP'"/>.
+            u prilogu se nalazi obračun plate: <t t-out="object.payslip_run_id.name or 'PP'"/>.
             <br /><br />
             Na raspolaganju smo Vam za sva dodatna pitanja.
             <br /><br />

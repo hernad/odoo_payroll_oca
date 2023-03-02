@@ -9,13 +9,13 @@
             <field name="name">Send payslip by email</field>
             <field name="model_id" ref="payroll.model_hr_payslip" />
             <field name="email_from">{{ user.email_formatted }}</field>
-            <field name="email_to">{{ object.employee_id.work_email }}</field>
+            <field name="email_to">{{ object.employee_id.private_email or object.employee_id.work_email }}</field>
             <field name="reply_to">{{ user.email_formatted }}</field>
             <field name="subject">{{ object.company_id.name }}: Platna lista {{ object.employee_id.name }} obracun {{ object.payslip_run_id.name }}</field>
             <field name="body_html" type="html">
     <div style="margin: 0px; padding: 0px;">
         <p style="margin: 0px; padding: 0px; font-size: 13px;">
-            Poštovani <span style="font-weight:bold;" t-out="object.employee_id.name or 'NN'" />,
+            Poštovani/a <span style="font-weight:bold;" t-out="object.employee_id.name or 'NN'" />,
             <br /><br />
             u prilogu se nalazi obračun plate: <t t-out="object.payslip_run_id.name or 'PP'"/>.
             <br /><br />

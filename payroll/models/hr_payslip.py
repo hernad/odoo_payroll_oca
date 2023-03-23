@@ -465,6 +465,7 @@ class HrPayslip(models.Model):
         return leaves.values()
 
 
+    # na osnovu opisa odsustva preko 42d, POS_PLATA_SAT=5.75 se obracunava bolovanje preko
     def get_bol_preko_pos_puna_sat_inputs(self, inputs, contract_ids, date_from, date_to):
 
         contract_input = None
@@ -557,6 +558,36 @@ class HrPayslip(models.Model):
 
     def _compute_timesheet_hours(self, hours_to_spend, food_max_days, contract, date_to):
 
+        def sort_crit_0(line):
+            if '#P#' in line.name:
+                return "9"
+            elif line.work_type_id.code in ['30_WF', '31_W', '40_XF', '41_X']:
+                # rad na drzavni praznik
+                return "7"
+            elif line.work_type_id.code in ['20_NF', '21_N']:
+                # nocni rad
+                return "6"
+            elif line.work_type_id.code in ['10_SF']:
+                # redovan rad sa TO
+                return "5"
+            elif line.work_type_id.code in ['10_SF']:
+                # redovan rad bez TO
+                return "4"
+            else:
+                return "0"
+
+        # datumi opadajuci kriterij
+        def sort_crit_1(line):
+            return line.date
+
+        # stavke sa toplim obrokom
+        #def sort_crit_2(line):
+        #    # prvo potroshi stavke sa TO
+        #    if line.work_type_id.food_included:
+        #        return "B"
+        #    else:
+        #        return "A"
+
         env = self.env
 
         # get timesheets for employee
@@ -571,6 +602,7 @@ class HrPayslip(models.Model):
         # initialize timesheet_hours dict
         for work_type in work_types:
             timesheet_hours[work_type.code] = 0
+            timesheet_hours[work_type.code + '_P'] = 0
 
         analytic_line_object = env['account.analytic.line']
         # order date desc, code = 10_SF, 11_S, 20_NF, 21_N ...
@@ -588,8 +620,10 @@ class HrPayslip(models.Model):
             #     ('worked_days_ids', 'in', [line.id for line in self.worked_days_line_ids])
         ], order="date desc")
 
+        # https://stackoverflow.com/questions/4233476/sort-a-list-by-multiple-attributes
+
         timesheet_item_ids = []
-        for line in lines:
+        for line in sorted(lines, key=lambda line: (sort_crit_0(line), sort_crit_1(line)), reverse=True):
             if line in self.analytic_line_spent:
                 # already spent
                 continue
@@ -609,14 +643,33 @@ class HrPayslip(models.Model):
                 # this timesheet item has food included
                 if line.work_type_id.food_included:
                     food_included_days += 1
-                timesheet_hours[line.work_type_id.code] += line.unit_amount
+                if not ('#P#' in line.name):
+                   # 10_SF - standard work with food
+                   timesheet_hours[line.work_type_id.code] += line.unit_amount
+                else:
+                   # 10_SF_P - standard work with food force pay
+                   timesheet_hours[line.work_type_id.code + '_P'] += line.unit_amount
+
                 # work on holiday is not included in monthly hours fond,
                 # so work_type.hours_fond_included = False
                 if line.work_type_id.hours_fond_included:
-                    hours_to_spend -= line.unit_amount
+                    if not ('#P#' in line.name):
+                      hours_to_spend -= line.unit_amount
                 timesheet_item_ids.append(line.id)
 
         for work_type in work_types:
+            # force pay stavke
+            if (work_type.code + '_P') in timesheet_hours.keys() and timesheet_hours[work_type.code + '_P'] > 0:
+                timesheet_data.append({
+                    "name": _(work_type.name) + ' #P#',
+                    "sequence": 99,
+                    "code": "TSH_P_" + work_type.code.upper(),
+                    "number_of_hours": timesheet_hours[work_type.code + '_P'],
+                    "number_of_days": (timesheet_hours[work_type.code + '_P'] / 8),
+                    "contract_id": contract.id,
+                    # https://www.odoo.com/forum/help-1/overwrite-write-method-many2many-102545
+                    "timesheet_item_ids": [(6, 0, timesheet_item_ids)]
+                })
             if timesheet_hours[work_type.code] > 0:
                 timesheet_data.append({
                     "name": _(work_type.name),
@@ -624,7 +677,7 @@ class HrPayslip(models.Model):
                     "code": "TSH_" + work_type.code.upper(),
                     "number_of_hours": timesheet_hours[work_type.code],
                     # number_of_days 0, if this work_type is not included in hours fond
-                    "number_of_days": (timesheet_hours[work_type.code] / 8 if work_type.hours_fond_included  else 0),
+                    "number_of_days": (timesheet_hours[work_type.code] / 8 if work_type.hours_fond_included else 0),
                     "contract_id": contract.id,
                     # https://www.odoo.com/forum/help-1/overwrite-write-method-many2many-102545
                     "timesheet_item_ids": [(6, 0, timesheet_item_ids)]

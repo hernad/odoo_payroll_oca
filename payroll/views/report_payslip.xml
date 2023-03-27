@@ -79,20 +79,13 @@
                             </tr>
                         </table>
 
-
-
                                 <t t-set="payslip_contracts" t-value="[]"/>
                                 <t t-foreach="o.line_ids.filtered(lambda line: line.appears_on_payslip and line.quantity != 0)" t-as="l">
                                     <t t-set="payslip_contracts" t-value="payslip_contracts + [l.contract_id]"/>
                                 </t>
 
                                 <t t-foreach="sorted(set(payslip_contracts), key=lambda contr: contr.date_start)" t-as="contract">
-                                    <!--
-                                    <div class="row mt32 mb32">
-                                       <strong t-esc="'== UGOVOR: ' + contract.name + ' == '"/>
-                                       <span t-field="contract.date_start" /> - <span t-field="contract.date_end" />
-                                    </div>
-                                    -->
+
                                     <table class="table table-sm table-bordered">
                                         <tr>
                                             <td>
@@ -166,8 +159,6 @@
                                       <div style="page-break-after: always;"><br/></div>
                                     </t>
                                 </t>
-
-
 
 
 

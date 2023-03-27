@@ -179,6 +179,7 @@ class HrPayslip(models.Model):
         "Allow Cancel Payslips", compute="_compute_allow_cancel_payslips"
     )
 
+
     __slots__ = ('analytic_line_spent',)
 
     #@api.constrains('contract_id')

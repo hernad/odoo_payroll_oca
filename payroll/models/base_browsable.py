@@ -100,3 +100,21 @@ class Payslips(BrowsableObject):
         return self.env["hr.rule.parameter"]._get_parameter_from_code(
             code, self.dict.date_to
         )
+    def koef_min_rad(self):
+
+        # https://stackoverflow.com/questions/765797/convert-timedelta-to-years
+        year_payslip = self.dict.date_to.year
+        year_from = self.dict.employee_id.first_contract_date.year
+
+        month_payslip = self.dict.date_to.month
+        month_from = self.dict.employee_id.first_contract_date.month
+
+        # 20.09.2006 - 31.03.2023 = 2023-2006 = 17
+        diff = year_payslip - year_from
+
+        # no increment until full year
+        # month 09 contract start, month 03 current payroll
+        if (diff > 0) and (month_payslip < month_payslip):
+           diff = diff - 1
+
+        return diff * 0.6

@@ -562,8 +562,8 @@ class HrPayslip(models.Model):
         def sort_crit_0(line):
             if '#P#' in line.name:
                 return "9"
-            elif line.work_type_id.code in ['30_WF', '31_W', '40_XF', '41_X']:
-                # rad na drzavni praznik
+            elif line.work_type_id.code in ['30_WF', '31_W', '40_XF', '41_X', '50_VF', '51_V', '60_G']:
+                # rad na drzavni praznik, rad na vjerski praznik, godišnji odmor neiskorišten
                 return "7"
             elif line.work_type_id.code in ['20_NF', '21_N']:
                 # nocni rad
@@ -571,7 +571,7 @@ class HrPayslip(models.Model):
             elif line.work_type_id.code in ['10_SF']:
                 # redovan rad sa TO
                 return "5"
-            elif line.work_type_id.code in ['10_SF']:
+            elif line.work_type_id.code in ['11_S']:
                 # redovan rad bez TO
                 return "4"
             else:

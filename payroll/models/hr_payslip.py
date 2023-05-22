@@ -300,6 +300,14 @@ class HrPayslip(models.Model):
             )
         return super(HrPayslip, self).unlink()
 
+
+    def compute_selected_sheets(self):
+
+        for payslip_id in self._context['active_ids']:
+            payslip = self.env['hr.payslip'].browse(payslip_id)
+            payslip.compute_sheet()
+
+
     def compute_sheet(self):
         for payslip in self:
             # delete old payslip lines
@@ -1054,6 +1062,17 @@ class HrPayslip(models.Model):
 
         self.input_line_ids = input_lines
 
+    def refetch_compute_selected_payslips(self):
+        for payslip_id in self._context['active_ids']:
+            payslip = self.env['hr.payslip'].browse(payslip_id)
+            payslip.onchange_employee()
+            payslip.compute_sheet()
+
+    def refetch_selected_payslips(self):
+        for payslip_id in self._context['active_ids']:
+            payslip = self.env['hr.payslip'].browse(payslip_id)
+            payslip.onchange_employee()
+
     @api.onchange("employee_id", "date_from", "date_to")
     def onchange_employee(self):
 
@@ -1066,13 +1085,6 @@ class HrPayslip(models.Model):
             contract_ids = self._get_employee_contracts().ids
             if not contract_ids:
                 return
-            # if there are more contracts - take only first, bug!?
-            #self.contract_id = self.env["hr.contract"].browse(contract_ids[0])
-        # Assign struct_id automatically when the user don't selected one.
-        #if not self.struct_id and not self.env.context.get("struct_id"):
-        #    if not self.contract_id.struct_id:
-        #        return
-        #    self.struct_id = self.contract_id.struct_id
 
         # Compute payslip name
         self._compute_name()

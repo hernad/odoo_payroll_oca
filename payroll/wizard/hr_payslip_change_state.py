@@ -17,6 +17,7 @@ class HrPayslipChangeState(models.TransientModel):
             ("verify", "Compute Sheet"),
             ("done", "Confirm"),
             ("cancel", "Cancel Payslip"),
+            ("cdraft", "Cancel then Draft"),
         ],
         string="Action",
         help="* When the payslip is created the status is 'Draft'.\
@@ -76,6 +77,11 @@ class HrPayslipChangeState(models.TransientModel):
                             "please deselect it" % rec.name
                         )
                     )
+            elif new_state == "cdraft":
+                if rec.state != "cancel":
+                    rec.action_payslip_cancel()
+                rec.action_payslip_draft()
+
 
         return {
             "domain": "[('id','in', [" + ",".join(map(str, record_ids)) + "])]",

@@ -570,6 +570,8 @@ class HrPayslip(models.Model):
         def sort_crit_0(line):
             if '#P#' in line.name:
                 return "9"
+            elif '#R#' in line.name:
+                return "8"
             elif line.work_type_id.code in ['30_WF', '31_W', '40_XF', '41_X', '50_VF', '51_V', '60_G']:
                 # rad na drzavni praznik, rad na vjerski praznik, godišnji odmor neiskorišten
                 return "7"
@@ -612,6 +614,7 @@ class HrPayslip(models.Model):
         for work_type in work_types:
             timesheet_hours[work_type.code] = 0
             timesheet_hours[work_type.code + '_P'] = 0
+            timesheet_hours[work_type.code + '_R'] = 0
 
         analytic_line_object = env['account.analytic.line']
         # order date desc, code = 10_SF, 11_S, 20_NF, 21_N ...
@@ -652,17 +655,22 @@ class HrPayslip(models.Model):
                 # this timesheet item has food included
                 if line.work_type_id.food_included:
                     food_included_days += 1
-                if not ('#P#' in line.name):
+                if not ('#P#' in line.name) and not ('#R#' in line.name):
                    # 10_SF - standard work with food
                    timesheet_hours[line.work_type_id.code] += line.unit_amount
                 else:
-                   # 10_SF_P - standard work with food force pay
-                   timesheet_hours[line.work_type_id.code + '_P'] += line.unit_amount
+                   if ('#P#' in line.name):
+                     # 10_SF_P - standard work with food force pay
+                     timesheet_hours[line.work_type_id.code + '_P'] += line.unit_amount
+                   elif ('#R#' in line.name):
+                     # 10_SF_R - standard work already realized
+                     timesheet_hours[line.work_type_id.code + '_R'] += line.unit_amount
+
 
                 # work on holiday is not included in monthly hours fond,
                 # so work_type.hours_fond_included = False
                 if line.work_type_id.hours_fond_included:
-                    if not ('#P#' in line.name):
+                    if not ('#P#' in line.name) and not ('#R#' in line.name):
                       hours_to_spend -= line.unit_amount
                 timesheet_item_ids.append(line.id)
 
@@ -677,6 +685,17 @@ class HrPayslip(models.Model):
                     "number_of_days": (timesheet_hours[work_type.code + '_P'] / 8),
                     "contract_id": contract.id,
                     # https://www.odoo.com/forum/help-1/overwrite-write-method-many2many-102545
+                    "timesheet_item_ids": [(6, 0, timesheet_item_ids)]
+                })
+            # already realized stavke
+            if (work_type.code + '_R') in timesheet_hours.keys() and timesheet_hours[work_type.code + '_R'] > 0:
+                timesheet_data.append({
+                    "name": _(work_type.name) + ' #R#',
+                    "sequence": 99,
+                    "code": "TSH_R_" + work_type.code.upper(),
+                    "number_of_hours": timesheet_hours[work_type.code + '_R'],
+                    "number_of_days": (timesheet_hours[work_type.code + '_R'] / 8),
+                    "contract_id": contract.id,
                     "timesheet_item_ids": [(6, 0, timesheet_item_ids)]
                 })
             if timesheet_hours[work_type.code] > 0:

@@ -754,13 +754,15 @@ class HrPayslip(models.Model):
 
         for contract in contracts:
             for payslip_input in payslip_inputs:
-                res.append(
-                    {
-                        "name": payslip_input.name,
-                        "code": payslip_input.code,
-                        "contract_id": contract.id,
-                    }
-                )
+                # detashirani skip inputs
+                if not ('INO' in contract.struct_id.code):
+                    res.append(
+                        {
+                            "name": payslip_input.name,
+                            "code": payslip_input.code,
+                            "contract_id": contract.id,
+                        }
+                    )
         return res
 
     #def _init_payroll_dict_contracts(self):

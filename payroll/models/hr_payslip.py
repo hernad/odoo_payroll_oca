@@ -394,6 +394,8 @@ class HrPayslip(models.Model):
                 leaves = self._compute_leave_days(contract, day_from, day_to)
                 for leave in leaves:
                     hours_fond -= abs(leave["number_of_hours"])
+                    # umanji fond TO dana za odsustva
+                    food_max_days -= abs(leave["number_of_days"])
                 #  extend() method adds multiple items.
                 res.extend(leaves)
 
@@ -568,18 +570,18 @@ class HrPayslip(models.Model):
     def _compute_timesheet_hours(self, hours_to_spend, food_max_days, contract, date_to):
 
         def sort_crit_0(line):
-            if '#P#' in line.name:
+            if '#P#' in line.name: # potrošiti obavezno ovaj obračun
                 return "9"
-            elif '#R#' in line.name:
+            elif '#R#' in line.name:  # stavke koje su na drugi način već isplaćene (npr. data roba)
                 return "8"
-            elif line.work_type_id.code in ['30_WF', '31_W', '40_XF', '41_X', '50_VF', '51_V', '60_G']:
-                # rad na drzavni praznik, rad na vjerski praznik, godišnji odmor neiskorišten
+            elif line.work_type_id.code in ['30_WF', '31_W', '40_XF', '41_X', '60_G']:
+                # rad na drzavni praznik, godišnji odmor neiskorišten
                 return "7"
             elif line.work_type_id.code in ['20_NF', '21_N']:
                 # nocni rad
                 return "6"
-            elif line.work_type_id.code in ['10_SF']:
-                # redovan rad sa TO
+            elif line.work_type_id.code in ['10_SF', '70_T']:
+                # redovan rad sa TO, topli obrok "only"
                 return "5"
             elif line.work_type_id.code in ['11_S']:
                 # redovan rad bez TO
@@ -608,6 +610,7 @@ class HrPayslip(models.Model):
         work_types = work_type_object.search([])
 
         timesheet_data = []
+        # brojač potrošenih TO
         food_included_days = 0
         timesheet_hours = {}
         # initialize timesheet_hours dict
@@ -640,25 +643,42 @@ class HrPayslip(models.Model):
                 # already spent
                 continue
 
-            # nothing left to spend
-            if hours_to_spend <= 0:
+            # ostalo iz fonda dana za TO
+            food_days_rest = food_max_days - food_included_days
+
+            # nothing left to spend - ni sati ni dana TO
+            if hours_to_spend <= 0 and food_days_rest <= 0:
                 break
 
-            line.split_as_needed(hours_to_spend=hours_to_spend, food_days_rest=(food_max_days - food_included_days))
+            splited = line.split_as_needed(hours_to_spend=hours_to_spend, food_days_rest=food_days_rest)
 
-            self.analytic_line_spent.append(line)
+            if line.work_type_id.code == '70_T' and food_days_rest == 0:
+                if not '#P#' in line.name:
+                    continue
+            elif (hours_to_spend > 0) or ((hours_to_spend <= 0) and (food_days_rest > 0) and splited):
+                # ova linija se uzima u obzir samo ako nismo potrosili sate ili smo u slucaju da imamo
+                # samo TO za raspodjelu napravili split - generisali 70_T stavku
+                self.analytic_line_spent.append(line)
+            else:
+                # linija se ne moze uzeti, pokusaj sljedecu
+                continue
+
             # TODO: use product_uom_id
             # TODO: day = timesheet_hours / 8?  use _get_work_hours?
 
-            # ova stavka se moze "potrositi"
-            if hours_to_spend >= line.unit_amount:
+            # imamo sati za potrositi "potrositi"
+            if (hours_to_spend > 0) and (hours_to_spend >= line.unit_amount):
                 # this timesheet item has food included
                 if line.work_type_id.food_included:
                     food_included_days += 1
-                if not ('#P#' in line.name) and not ('#R#' in line.name):
+                    if '#P#' in line.name:
+                        # ove stavke idu preko limita fonda dana za TO
+                        food_max_days += 1
+                if not ('#P#' in line.name) and not ('#R#' in line.name) and not (line.work_type_id.code == '70_T'):
                    # 10_SF - standard work with food
                    timesheet_hours[line.work_type_id.code] += line.unit_amount
                 else:
+                   # line.work_type_id.code == '70_T' samo dodaje food, bez sati realizacije
                    if ('#P#' in line.name):
                      # 10_SF_P - standard work with food force pay
                      timesheet_hours[line.work_type_id.code + '_P'] += line.unit_amount
@@ -666,13 +686,19 @@ class HrPayslip(models.Model):
                      # 10_SF_R - standard work already realized
                      timesheet_hours[line.work_type_id.code + '_R'] += line.unit_amount
 
-
                 # work on holiday is not included in monthly hours fond,
                 # so work_type.hours_fond_included = False
                 if line.work_type_id.hours_fond_included:
-                    if not ('#P#' in line.name) and not ('#R#' in line.name):
+                    if not ('#P#' in line.name) and not ('#R#' in line.name) and not (line.work_type_id.code == '70_T'):
                       hours_to_spend -= line.unit_amount
                 timesheet_item_ids.append(line.id)
+
+            # nemamo sati za potrositi ali imamo dana TO, ova stavka je sa TO
+            elif ((hours_to_spend <= 0) and (food_days_rest > 0) and splited):
+                # samo dodajemo dane TO
+                food_included_days += 1
+                timesheet_item_ids.append(line.id)
+
 
         for work_type in work_types:
             # force pay stavke

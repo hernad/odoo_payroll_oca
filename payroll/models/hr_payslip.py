@@ -574,8 +574,8 @@ class HrPayslip(models.Model):
                 return "9"
             elif '#R#' in line.name:  # stavke koje su na drugi način već isplaćene (npr. data roba)
                 return "8"
-            elif line.work_type_id.code in ['30_WF', '31_W', '40_XF', '41_X', '60_G']:
-                # rad na drzavni praznik, godišnji odmor neiskorišten
+            elif line.work_type_id.code in ['30_WF', '31_W', '40_XF', '41_X', '60_G', '80_SF', '81_S', '90_SNF', '91_SN', 'A0_SDF', 'A1_SD', 'B0_SNDF', 'B1_SND']:
+                # rad na drzavni praznik, godišnji odmor neiskorišten, sve varijante rada na dane sedmicnog odmora 
                 return "7"
             elif line.work_type_id.code in ['20_NF', '21_N']:
                 # nocni rad

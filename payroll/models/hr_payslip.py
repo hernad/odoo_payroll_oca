@@ -659,7 +659,7 @@ class HrPayslip(models.Model):
             if line.work_type_id.code == '70_T' and food_days_rest == 0:
                 if not '#P#' in line.name:
                     continue
-            elif (hours_to_spend > 0) or ((hours_to_spend <= 0) and (food_days_rest > 0) and splited):
+            elif ('#P#' in line.name) or (hours_to_spend > 0) or ((hours_to_spend <= 0) and (food_days_rest > 0) and splited):
                 # ova linija se uzima u obzir samo ako nismo potrosili sate ili smo u slucaju da imamo
                 # samo TO za raspodjelu napravili split - generisali 70_T stavku
                 self.analytic_line_spent.append(line)

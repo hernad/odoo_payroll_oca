@@ -648,10 +648,14 @@ class HrPayslip(models.Model):
 
             # nothing left to spend - ni sati ni dana TO
             if hours_to_spend <= 0 and food_days_rest <= 0:
-                break
+                if not '#P#' in line.name:
+                    # ako se desi da je neko na godisnjem, ima 0 hours_to_spend ali treba potrositi preraspodjelu #P#
+                    # zato tada ne smije biti prekida
+                    break
 
             splited = line.split_as_needed(hours_to_spend=hours_to_spend, food_days_rest=food_days_rest)
 
+            # 70_T je topli obrok only
             if line.work_type_id.code == '70_T' and food_days_rest == 0:
                 if not '#P#' in line.name:
                     continue

@@ -643,23 +643,28 @@ class HrPayslip(models.Model):
                 # already spent
                 continue
 
+            # ove linije se obavezno generisu
+            obaveznoUzetiLiniju = ('#P#' in line.name) or ('#R#' in line.name)
+
             # ostalo iz fonda dana za TO
             food_days_rest = food_max_days - food_included_days
 
             # nothing left to spend - ni sati ni dana TO
             if hours_to_spend <= 0 and food_days_rest <= 0:
-                if not '#P#' in line.name:
-                    # ako se desi da je neko na godisnjem, ima 0 hours_to_spend ali treba potrositi preraspodjelu #P#
-                    # zato tada ne smije biti prekida
-                    break
+                    if not obaveznoUzetiLiniju:
+                        break
 
-            splited = line.split_as_needed(hours_to_spend=hours_to_spend, food_days_rest=food_days_rest)
+            if not obaveznoUzetiLiniju:
+                splited = line.split_as_needed(hours_to_spend=hours_to_spend, food_days_rest=food_days_rest)
+            else:
+                splited = False
+            
 
             # 70_T je topli obrok only
             if line.work_type_id.code == '70_T' and food_days_rest == 0:
                 if not '#P#' in line.name:
                     continue
-            elif ('#P#' in line.name) or (hours_to_spend > 0) or ((hours_to_spend <= 0) and (food_days_rest > 0) and splited):
+            elif obaveznoUzetiLiniju and (hours_to_spend > 0) or ((hours_to_spend <= 0) and (food_days_rest > 0) and splited):
                 # ova linija se uzima u obzir samo ako nismo potrosili sate ili smo u slucaju da imamo
                 # samo TO za raspodjelu napravili split - generisali 70_T stavku
                 self.analytic_line_spent.append(line)
@@ -671,7 +676,7 @@ class HrPayslip(models.Model):
             # TODO: day = timesheet_hours / 8?  use _get_work_hours?
 
             # imamo sati za potrositi "potrositi"
-            if (hours_to_spend > 0) and (hours_to_spend >= line.unit_amount):
+            if obaveznoUzetiLiniju or ((hours_to_spend > 0) and (hours_to_spend >= line.unit_amount)):
                 # this timesheet item has food included
                 if line.work_type_id.food_included:
                     food_included_days += 1

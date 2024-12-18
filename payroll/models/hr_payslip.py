@@ -243,8 +243,8 @@ class HrPayslip(models.Model):
         return self.write({"state": "draft"})
 
     def action_payslip_done(self):
-        if not self.env.context.get("without_compute_sheet"):
-            self.compute_sheet()
+        #if not self.env.context.get("without_compute_sheet"):
+        #    self.compute_sheet()
         return self.write({"state": "done"})
 
     def action_payslip_cancel(self):
@@ -320,7 +320,8 @@ class HrPayslip(models.Model):
                 #payslip.contract_id.ids
                 #or
                 payslip.employee_id._get_contracts(
-                    date_from=payslip.date_from, date_to=payslip.date_to
+                    date_from=payslip.date_from, date_to=payslip.date_to,
+                    states=("open", "close")
                 ).ids
             )
             # write payslip lines
